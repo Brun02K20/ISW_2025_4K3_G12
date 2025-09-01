@@ -28,6 +28,8 @@ Definir cómo se gestionan los documentos del proyecto, el control de cambios, l
 docs/Documentacion_Bibliografia_Material_Bibliografia
 chore/Nueva_Carpeta_Resumenes_Propios
 
+
+*TUTORIAL: * https://youtu.be/ip6aTgxfQ7Q
 ---
 
 ## 3. Procedimiento de Subida de Documentos y Carpetas
