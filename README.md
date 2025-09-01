@@ -73,7 +73,7 @@ Las líneas base se identificarán con la siguiente etiqueta: ```LB-G12-<NroLine
 
 | Ítem | Regla de Nombrado | Ubicación |
 |------|------------------|-----------|
-| Bibliografía | `ISW_B_<NombreCarpeta>_<NombreLibro>.pdf` | `Documentacion/Bibliografia/Material_Bibliografia` |
+| Bibliografía | `ISW_B_<NombreLibro>.pdf` | `Documentacion/Bibliografia/Material_Bibliografia` |
 | Resúmenes Propios | `ISW_Resumen_Parc<NroParcial><Autor><Año>.<ext>` | `Documentacion/Bibliografia/Resumenes_Propios` |
 | Clases Grabadas | `ISW_Links_ClasesGrabadas_<Curso>_<Año>.<ext>` | `Documentacion/Presentaciones/Clases_Grabadas` |
 | Ejercicios Resueltos | `ISW_ER_<NombreArchivo>_<Año>.<ext>` | `Ejercicios_Resueltos` |
