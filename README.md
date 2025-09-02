@@ -118,7 +118,7 @@ Las líneas base se identificarán con la siguiente etiqueta: ```LB-G12-<NroLine
 | TIG | Trabajo de Investigación en Grupo |
 | EXT | Extensión del Archivo |
 | TMP | Template / Plantilla |
-| BIB | Bibliografía |
+| B | Bibliografía |
 | IFS | Introducción a la Ingeniería de Software |
 | LYK | Lean y Kanban |
 | PA | Pensamiento Ágil |
@@ -126,6 +126,7 @@ Las líneas base se identificarán con la siguiente etiqueta: ```LB-G12-<NroLine
 | PRC | Parcial |
 | G12 | Grupo 12 |
 | LB | Línea Base |
+| P | Presentacion |
 
 ---
 
