@@ -92,7 +92,7 @@ Las líneas base se identificarán con la siguiente etiqueta: ```LB-G12-<NroLine
 | Ejercicios Resueltos | `ISW_ER_<NombreArchivo>_<Año>.<ext>` | `Ejercicios_Resueltos` |
 | Trabajos Prácticos | `ISW_TP_<NumeroTP>.<ext>` | `Entregas/Trabajos_Practicos/<TrabajoPractico>` |
 | Trabajo De Investigación | `ISW_TIG_<NombreTrabajoInvestigacionGrupal>_<Curso>.<ext>` | `Entregas/Investigaciones/<TrabajoDeInvestigacion>` |
-| Cronograma de la Materia | `ISW_CR_2025_4K3_archivo.ext` | `/ (raíz del proyecto)` |
+| Cronograma de la Materia | `ISW_CR_2025_4K3.ext` | `/ (raíz del proyecto)` |
 
 ---
 
@@ -139,8 +139,6 @@ Para poder utilizar este proyecto, siga los siguientes pasos:
    git clone https://github.com/Brun02K20/ISW_2025_4K3_G12.git
    ```
 
-=======
-
 ## 6. Control de Cambios
 *Sistema de control:* Git / GitHub
 
@@ -184,7 +182,7 @@ chore/Nueva_Carpeta_Resumenes_Propios
   
 ---
 
-## 5. Procedimiento de Control de Cambios Detallado
+## 9. Procedimiento de Control de Cambios Detallado
 
 1. Crear carpeta/documento siguiendo la estructura y reglas de nombrado.  
 2. Crear rama remota siguiendo la convención [tipo]/[descripcion_corta].  
