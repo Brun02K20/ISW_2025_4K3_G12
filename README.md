@@ -34,8 +34,8 @@ Definir cómo se gestionan los documentos del proyecto, el control de cambios, l
 
 | Legajo | Apellido, Nombre | Perfil |
 |--------|-----------------------------|---------------------------------------------|
-| 89639  | Virinni, Bruno Laszlo             | [Brun02K20](https://github.com/Brun02K20) |
-| 90263  | Höhlke, Augusto             | [AugusHo](https://github.com/AugusHo) |
+| 89639  | Virinni, Bruno Laszlo       | [Brun02K20](https://github.com/Brun02K20) |
+| 90263  | Höhlke, Augusto             | [Hohlke90263](https://github.com/Hohlke90263) |
 | 91274  | Liendo, Juan Esteban        | [juan-lien-do](https://github.com/juan-lien-do) |
 | 89767  | Chaile, Emmanuel Ricardo    | [emmach02](https://github.com/emmach02) |
 | 75721  | Freytes Oviedo, Agustin     | [Agustin-98](https://github.com/Agustin-98) |
