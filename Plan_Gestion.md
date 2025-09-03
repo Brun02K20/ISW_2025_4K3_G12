@@ -58,8 +58,8 @@ Las líneas base se identificarán con la siguiente etiqueta: `LB-G12-<NroLineaB
 ISW_2025_4K3_G12/
 ├── 📂 Documentacion/
 │   ├── 📂 Bibliografia/
-│   │   ├── 📂 Material_Bibliografico/
-│   │   └── 📂 Resumenes_Propios/
+│   │    └──📂 Material_Bibliografico/
+│   └── 📂 Resumenes_Propios/
 │   └── 📂 Presentaciones/
 │       └── 📂 Clases_Grabadas/
 ├── 📂 Ejercicios_Resueltos/
