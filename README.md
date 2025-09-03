@@ -1,8 +1,13 @@
 <div align="center">
 
-# 🚀 ISW_2025_4K3_G12
+<h1 align="center" style="font-size: 4rem;">
+  🚀 <strong style="color: #FF5C5C;">ISW 2025</strong> | <span style="color: #00FFD9;">Grupo 12</span>
+</h1>
 
-## 📋 ***¡Bienvenido al repositorio del Grupo 12!***
+<p align="center">
+  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=28&pause=500&color=0FFFC2&vCenter=true&center=true&width=900&lines=Gestión+de+Configuración+SCM" alt="Typing SVG" />
+</p>
+
 **📚 Materia:** Ingeniería y Calidad de Software  
 **📅 Año:** 2025  
 **🏫 Universidad:** Universidad Tecnológica Nacional, Facultad Regional Córdoba  
@@ -35,5 +40,9 @@ Repositorio para consignas, trabajos prácticos y entregables desarrollados en l
 [![GitHub forks](https://img.shields.io/github/forks/Brun02K20/ISW_2025_4K3_G12?style=social)](https://github.com/Brun02K20/ISW_2025_4K3_G12)
 [![GitHub last commit](https://img.shields.io/github/last-commit/Brun02K20/ISW_2025_4K3_G12)](https://github.com/Brun02K20/ISW_2025_4K3_G12)
 [![GitHub repo size](https://img.shields.io/github/repo-size/Brun02K20/ISW_2025_4K3_G12)](https://github.com/Brun02K20/ISW_2025_4K3_G12)
+
+<p align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:FF5C5C,100:00FFD9&height=120&section=footer"/>
+</p>
 
 </div>
