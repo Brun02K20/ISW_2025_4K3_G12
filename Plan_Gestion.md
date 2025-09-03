@@ -9,7 +9,7 @@ Definir cómo se gestionan los documentos del proyecto, el control de cambios, l
 ## 2. 📍 Línea Base
 
 ### 2.1 🏷️ Criterio de creación
-Se establecerá la **Línea de Base** del proyecto luego de recibir retroalimentacion (calificación) por parte del equipo docente del curso luego de Trabajos Prácticos evaluables. Debido que esto nos marcaria un hito importante para alcanzar el objetivo que tenemos en esta materia. Alcanzar la Aprobacion Directa.
+Se establecerá la **Línea de Base** del proyecto luego de recibir retroalimentación (es decir, calificación) por parte del equipo docente del curso luego de Trabajos Prácticos evaluables. Esto nos permitiría marcar un hito importante para alcanzar el objetivo que tenemos en esta materia, alcanzar la Aprobación Directa.
 
 ### 2.2 🔖 Identificación
 Las líneas base se identificarán con la siguiente etiqueta: `LB-G12-<NroLineaBase>`
@@ -89,7 +89,7 @@ ISW_2025_4K3_G12/
 - 🌿 Basadas en main  
 - 📋 Formato: [tipo]/[descripcion_corta]  
 - 📝 Ejemplos:  
-  - docs/Documentacion_Bibliografia_Material_Bibliografia  
+  - docs/Documentacion_Bibliografia_Material_Bibliográfico  
   - chore/Nueva_Carpeta_Resumenes_Propios  
 
 **🎥 TUTORIAL:** [https://youtu.be/LjfTYkcAQSc](https://youtu.be/LjfTYkcAQSc)
