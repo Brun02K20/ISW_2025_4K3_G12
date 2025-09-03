@@ -6,7 +6,71 @@ Definir cómo se gestionan los documentos del proyecto, el control de cambios, l
 
 ---
 
-## 2. Control de Cambios
+## 2. Línea Base
+
+### 2.1 Criterio de creación
+Se establecerá la **Línea de Base** del proyecto luego de recibir la devolución (calificación) de cada uno de los Trabajos Prácticos – ya sea evaluable o no evaluable – debido a que estos tienen la aprobación (nuevamente, calificación) de los clientes (profesores).
+
+### 2.2 Identificación
+Las líneas base se identificarán con la siguiente etiqueta: `LB-G12-<NroLineaBase>`
+
+---
+
+## 3. Ítems de Configuración
+
+### 3.1 Glosario de Siglas
+
+| Sigla | Significado |
+|-------|-------------|
+| ISW | Ingeniería y Calidad de Software |
+| CED | Casos de Estudio y Documentación |
+| MA | Material Auxiliar |
+| TP | Trabajo Práctico |
+| TIG | Trabajo de Investigación en Grupo |
+| EXT | Extensión del Archivo |
+| TMP | Template / Plantilla |
+| B | Bibliografía |
+| IFS | Introducción a la Ingeniería de Software |
+| LYK | Lean y Kanban |
+| PA | Pensamiento Ágil |
+| TS | Testing de Software |
+| PRC | Parcial |
+| G12 | Grupo 12 |
+| LB | Línea Base |
+| P | Presentacion |
+| CR | Cronograma de la materia |
+
+### 3.2 Reglas de Nombrado y Ubicaciones
+
+| Ítem | Regla de Nombrado | Ubicación |
+|------|------------------|-----------|
+| Bibliografía | `ISW_B_<NombreLibro>.pdf` | `Documentacion/Bibliografia/Material_Bibliografia` |
+| Presentaciones | `ISW_P_<NombrePresentación>.pdf` | `Documentacion/Presentaciones` |
+| Resúmenes Propios | `ISW_Resumen_Parc<NroParcial><Autor><Año>.<ext>` | `Documentacion/Bibliografia/Resumenes_Propios` |
+| Clases Grabadas | `ISW_Links_ClasesGrabadas_<Curso>_<Año>.<ext>` | `Documentacion/Presentaciones/Clases_Grabadas` |
+| Ejercicios Resueltos | `ISW_ER_<NombreArchivo>_<Año>.<ext>` | `Ejercicios_Resueltos` |
+| Trabajos Prácticos | `ISW_TP_<NumeroTP>.<ext>` | `Entregas/Trabajos_Practicos/<TrabajoPractico>` |
+| Trabajo De Investigación | `ISW_TIG_<NombreTrabajoInvestigacionGrupal>_<Curso>.<ext>` | `Entregas/Investigaciones/<TrabajoDeInvestigacion>` |
+| Cronograma de la Materia | `ISW_CR_2025_4K3.ext` | `/ (raíz del proyecto)` |
+
+### 3.3 Estructura de Carpetas
+```
+ISW_2025_4K3_G12/
+├── Documentacion/
+│   ├── Bibliografia/
+│   │   ├── Material_Bibliografico/
+│   │   └── Resumenes_Propios/
+│   └── Presentaciones/
+│       └── Clases_Grabadas/
+├── Ejercicios_Resueltos/
+└── Entregas/
+    ├── Investigaciones/
+    └── Trabajos_Practicos/
+```
+
+---
+
+## 4. Control de Cambios
 *Sistema de control:* Git / GitHub
 
 *Reglas para los commits:*  
@@ -28,9 +92,11 @@ Definir cómo se gestionan los documentos del proyecto, el control de cambios, l
 docs/Documentacion_Bibliografia_Material_Bibliografia
 chore/Nueva_Carpeta_Resumenes_Propios
 
+*TUTORIAL:* https://youtu.be/ip6aTgxfQ7Q
+
 ---
 
-## 3. Procedimiento de Subida de Documentos y Carpetas
+## 5. Procedimiento de Subida de Documentos y Carpetas
 
 1. Crear o identificar la carpeta donde se subirá el documento.  
 2. Si la carpeta no existe, crearla y agregar .gitkeep.  
@@ -40,15 +106,14 @@ chore/Nueva_Carpeta_Resumenes_Propios
 
 ---
 
-## 4. Mantenimiento del Documento
+## 6. Mantenimiento del Documento
 
-- Responsable: Bruno Virinni 89639  
+- Responsables: Bruno Laszlo Virinni 89639; Juan Esteban Liendo 91274; Martin Horacio Castro Monzón 91429  
 - Actualizar el plan si hay cambios en la estructura de carpetas, reglas de nombrado o procedimientos.  
 
-  
 ---
 
-## 5. Procedimiento de Control de Cambios Detallado
+## 7. Procedimiento de Control de Cambios Detallado
 
 1. Crear carpeta/documento siguiendo la estructura y reglas de nombrado.  
 2. Crear rama remota siguiendo la convención [tipo]/[descripcion_corta].  
