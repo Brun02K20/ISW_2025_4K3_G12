@@ -1,11 +1,19 @@
 # 🚀 ISW_2025_4K3_G12
-*¡Bienvenido al repositorio del Grupo 12! *
-## 📋 Carátula
 
+## 📋 ***¡Bienvenido al repositorio del Grupo 12!***
 **📚 Materia:** Ingeniería y Calidad de Software  
 **📅 Año:** 2025  
 **🏫 Universidad:** Universidad Tecnológica Nacional, Facultad Regional Córdoba  
-**👥 Grupo:** N°12  
+**👥 Grupo:** N°12 **👥 Curso:** 4K3
+
+
+
+**🎯 Propósito:**  
+Repositorio para consignas, trabajos prácticos y entregables desarrollados en la materia.  
+
+### 📖 Documentación
+- [📄 Plan de Gestión de Configuración](Plan_Gestion.md) - Detalles sobre el control de cambios y estructura del proyecto.
+
 
 ### 👨‍💻 Integrantes
 
@@ -21,12 +29,6 @@
 | 88618  | Barrionuevo, Daniel         |
 | 90297  | Cornejo, Francisco          |
 | 85194  | Guillén, Lucas Martin       |
-
-**🎯 Propósito:**  
-Repositorio para consignas, trabajos prácticos y entregables desarrollados en la materia.  
-
-### 📖 Documentación
-- [📄 Plan de Gestión de Configuración](Plan_Gestion.md) - Detalles sobre el control de cambios y estructura del proyecto.
 
 ---
 
