@@ -1,3 +1,5 @@
+<div align="center">
+
 # 🚀 ISW_2025_4K3_G12
 
 ## 📋 ***¡Bienvenido al repositorio del Grupo 12!***
@@ -6,14 +8,11 @@
 **🏫 Universidad:** Universidad Tecnológica Nacional, Facultad Regional Córdoba  
 **👥 Grupo:** N°12 **👥 Curso:** 4K3
 
-
-
 **🎯 Propósito:**  
 Repositorio para consignas, trabajos prácticos y entregables desarrollados en la materia.  
 
 ### 📖 Documentación
 - [📄 Plan de Gestión de Configuración](Plan_Gestion.md) - Detalles sobre el control de cambios y estructura del proyecto.
-
 
 ### 👨‍💻 Integrantes
 
@@ -36,3 +35,5 @@ Repositorio para consignas, trabajos prácticos y entregables desarrollados en l
 [![GitHub forks](https://img.shields.io/github/forks/Brun02K20/ISW_2025_4K3_G12?style=social)](https://github.com/Brun02K20/ISW_2025_4K3_G12)
 [![GitHub last commit](https://img.shields.io/github/last-commit/Brun02K20/ISW_2025_4K3_G12)](https://github.com/Brun02K20/ISW_2025_4K3_G12)
 [![GitHub repo size](https://img.shields.io/github/repo-size/Brun02K20/ISW_2025_4K3_G12)](https://github.com/Brun02K20/ISW_2025_4K3_G12)
+
+</div>
