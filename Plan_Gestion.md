@@ -39,6 +39,7 @@ Las líneas base se identificarán con la siguiente etiqueta: `LB-G12-<NroLineaB
 | LB | Línea Base |
 | P | Presentacion |
 | CR | Cronograma de la materia |
+| MA | Modalidad académica |
 
 ### 3.2 📝 Reglas de Nombrado y Ubicaciones
 
@@ -52,6 +53,7 @@ Las líneas base se identificarán con la siguiente etiqueta: `LB-G12-<NroLineaB
 | Trabajos Prácticos | `ISW_TP_<NumeroTP>.<ext>` | `Entregas/Trabajos_Practicos/<TrabajoPractico>` |
 | Trabajo De Investigación | `ISW_TIG_<NombreTrabajoInvestigacionGrupal>_<Curso>.<ext>` | `Entregas/Investigaciones/<TrabajoDeInvestigacion>` |
 | Cronograma de la Materia | `ISW_CR_2025_4K3.ext` | `/ (raíz del proyecto)` |
+| Modalidad Académica de la Materia | `ISW_MA_2025_<NombreArchivo>.ext` | `/ (raíz del proyecto)` |
 
 ### 3.3 📁 Estructura de Carpetas
 ```
