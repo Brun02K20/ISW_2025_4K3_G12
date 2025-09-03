@@ -9,7 +9,7 @@ Definir cómo se gestionan los documentos del proyecto, el control de cambios, l
 ## 2. 📍 Línea Base
 
 ### 2.1 🏷️ Criterio de creación
-Se establecerá la **Línea de Base** del proyecto luego de recibir la devolución (calificación) de cada uno de los Trabajos Prácticos – ya sea evaluable o no evaluable – debido a que estos tienen la aprobación (nuevamente, calificación) de los clientes (profesores).
+Se establecerá la **Línea de Base** del proyecto luego de recibir retroalimentacion (calificación) por parte del equipo docente del curso luego de Trabajos Prácticos evaluables. Debido que esto nos marcaria un hito importante para alcanzar el objetivo que tenemos en esta materia. Alcanzar la Aprobacion Directa.
 
 ### 2.2 🔖 Identificación
 Las líneas base se identificarán con la siguiente etiqueta: `LB-G12-<NroLineaBase>`
@@ -120,3 +120,4 @@ ISW_2025_4K3_G12/
 3. 💾 Subir cambios y realizar commit según las reglas.  
 4. 🔍 Abrir PR para revisión y aprobación.  
 5. ✅ Hacer merge a main y borrar rama remota si ya no es necesaria.
+|
