@@ -23,16 +23,16 @@ Repositorio para consignas, trabajos prácticos y entregables desarrollados en l
 
 | Legajo | Apellido, Nombre |
 |--------|-----------------------------|
-| 89639  | Virinni, Bruno Laszlo       |
+| 88618  | Barrionuevo, Daniel         |
+| 91429  | Castro Monzon, Martin       |
+| 89767  | Chaile, Emmanuel Ricardo    |
+| 90297  | Cornejo, Francisco          |
+| 75721  | Freytes Oviedo, Agustin     |
+| 85194  | Guillén, Lucas Martin       |
 | 90263  | Höhlke, Augusto             |
 | 91274  | Liendo, Juan Esteban        |
-| 89767  | Chaile, Emmanuel Ricardo    |
-| 75721  | Freytes Oviedo, Agustin     |
-| 91429  | Castro Monzon, Martin       |
 | 76860  | Silvestri, Brian            |
-| 88618  | Barrionuevo, Daniel         |
-| 90297  | Cornejo, Francisco          |
-| 85194  | Guillén, Lucas Martin       |
+| 89639  | Virinni, Bruno Laszlo       |
 
 ---
 
