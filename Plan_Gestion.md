@@ -46,7 +46,7 @@ Las líneas base se identificarán con la siguiente etiqueta: `LB-G12-<NroLineaB
 |------|------------------|-----------|
 | Bibliografía | `ISW_B_<NombreLibro>.pdf` | `Documentacion/Bibliografia/Material_Bibliografia` |
 | Presentaciones | `ISW_P_<NombrePresentación>.pdf` | `Documentacion/Presentaciones` |
-| Resúmenes Propios | `ISW_Resumen_Parc<NroParcial><Autor><Año>.<ext>` | `Documentacion/Bibliografia/Resumenes_Propios` |
+| Resúmenes Propios | `ISW_Resumen_Parc<NroParcial><Autor><Año>.<ext>` | `Documentacion/Resumenes` |
 | Clases Grabadas | `ISW_Links_ClasesGrabadas_<Curso>_<Año>.<ext>` | `Documentacion/Presentaciones/Clases_Grabadas` |
 | Ejercicios Resueltos | `ISW_ER_<NombreArchivo>_<Año>.<ext>` | `Ejercicios_Resueltos` |
 | Trabajos Prácticos | `ISW_TP_<NumeroTP>.<ext>` | `Entregas/Trabajos_Practicos/<TrabajoPractico>` |
@@ -59,7 +59,7 @@ ISW_2025_4K3_G12/
 ├── 📂 Documentacion/
 │   ├── 📂 Bibliografia/
 │   │    └──📂 Material_Bibliografico/
-│   └── 📂 Resumenes_Propios/
+│   └── 📂 Resumenes/
 │   └── 📂 Presentaciones/
 │       └── 📂 Clases_Grabadas/
 ├── 📂 Ejercicios_Resueltos/
