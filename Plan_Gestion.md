@@ -92,7 +92,7 @@ ISW_2025_4K3_G12/
   - docs/Documentacion_Bibliografia_Material_Bibliografia  
   - chore/Nueva_Carpeta_Resumenes_Propios  
 
-**🎥 TUTORIAL:** [https://youtu.be/ip6aTgxfQ7Q](https://youtu.be/ip6aTgxfQ7Q)
+**🎥 TUTORIAL:** [https://youtu.be/LjfTYkcAQSc](https://youtu.be/LjfTYkcAQSc)
 
 ---
 
