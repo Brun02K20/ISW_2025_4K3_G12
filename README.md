@@ -1,5 +1,5 @@
 # 🚀 ISW_2025_4K3_G12
-*¡Bienvenido al repositorio del Grupo 12! 
+*¡Bienvenido al repositorio del Grupo 12! *
 ## 📋 Carátula
 
 **📚 Materia:** Ingeniería y Calidad de Software  
@@ -29,7 +29,6 @@ Repositorio para consignas, trabajos prácticos y entregables desarrollados en l
 - [📄 Plan de Gestión de Configuración](Plan_Gestion.md) - Detalles sobre el control de cambios y estructura del proyecto.
 
 ---
-
 
 [![GitHub stars](https://img.shields.io/github/stars/Brun02K20/ISW_2025_4K3_G12?style=social)](https://github.com/Brun02K20/ISW_2025_4K3_G12)
 [![GitHub forks](https://img.shields.io/github/forks/Brun02K20/ISW_2025_4K3_G12?style=social)](https://github.com/Brun02K20/ISW_2025_4K3_G12)
