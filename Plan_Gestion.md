@@ -62,6 +62,7 @@ ISW_2025_4K3_G12/
 │   ├── 📂 Bibliografia/
 │   │    └──📂 Material_Bibliografico/
 │   └── 📂 Resumenes/
+|   └── 📂 Notas_Clases/
 │   └── 📂 Presentaciones/
 │       └── 📂 Clases_Grabadas/
 ├── 📂 Ejercicios_Resueltos/
