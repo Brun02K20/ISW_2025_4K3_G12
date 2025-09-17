@@ -46,8 +46,8 @@ Las líneas base se identificarán con la siguiente etiqueta: `LB-G12-<NroLineaB
 | Ítem | Regla de Nombrado | Ubicación |
 |------|------------------|-----------|
 | Bibliografía | `ISW_B_<NombreLibro>.pdf` | `Documentacion/Bibliografia/Material_Bibliografia` |
-| Presentaciones | `ISW_P_<NombrePresentación>.pdf` | `Documentacion/Presentaciones` |
-| Resúmenes Propios | `ISW_Resumen_Parc<NroParcial><Autor><Año>.<ext>` | `Documentacion/Resumenes` |
+| Presentaciones | `ISW_P_[id]_<NombrePresentación>.pdf` | `Documentacion/Presentaciones` |
+| Resúmenes Propios | `ISW_Resumen_Parcial<NroParcial><Autor><Año>.<ext>` | `Documentacion/Resumenes` |
 | Clases Grabadas | `ISW_Links_ClasesGrabadas_<Curso>_<Año>.<ext>` | `Documentacion/Presentaciones/Clases_Grabadas` |
 | Ejercicios Resueltos | `ISW_ER_<NombreArchivo>_<Año>.<ext>` | `Ejercicios_Resueltos` |
 | Trabajos Prácticos | `ISW_TP_<NumeroTP>.<ext>` | `Entregas/Trabajos_Practicos/<TrabajoPractico>` |
@@ -66,6 +66,10 @@ ISW_2025_4K3_G12/
 │   └── 📂 Presentaciones/
 │       └── 📂 Clases_Grabadas/
 ├── 📂 Ejercicios_Resueltos/
+│    └── 📂  Unidad_1/
+│    └── 📂 Unidad_2/
+│    └── 📂 Unidad_3/
+│    └── 📂 Unidad_4/
 └── 📂 Entregas/
     ├── 📂 Investigaciones/
     └── 📂 Trabajos_Practicos/
