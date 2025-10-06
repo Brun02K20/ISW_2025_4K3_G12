@@ -40,20 +40,22 @@ Las líneas base se identificarán con la siguiente etiqueta: `LB-G12-<NroLineaB
 | P | Presentacion |
 | CR | Cronograma de la materia |
 | MA | Modalidad académica |
+| NC | Notas de Clase |
 
-### 3.2 📝 Reglas de Nombrado y Ubicaciones
+### 3.2 📝 Listado de Ítems de Configuración
 
-| Ítem | Regla de Nombrado | Ubicación |
-|------|------------------|-----------|
-| Bibliografía | `ISW_B_<NombreLibro>.pdf` | `Documentacion/Bibliografia/Material_Bibliografia` |
-| Presentaciones | `ISW_P_[id]_<NombrePresentación>.pdf` | `Documentacion/Presentaciones` |
-| Resúmenes Propios | `ISW_Resumen_Parcial<NroParcial><Autor><Año>.<ext>` | `Documentacion/Resumenes` |
-| Clases Grabadas | `ISW_Links_ClasesGrabadas_<Curso>_<Año>.<ext>` | `Documentacion/Presentaciones/Clases_Grabadas` |
-| Ejercicios Resueltos | `ISW_ER_<NombreArchivo>_<Año>.<ext>` | `Ejercicios_Resueltos` |
-| Trabajos Prácticos | `ISW_TP_<NumeroTP>.<ext>` | `Entregas/Trabajos_Practicos/<TrabajoPractico>` |
-| Trabajo De Investigación | `ISW_TIG_<NombreTrabajoInvestigacionGrupal>_<Curso>.<ext>` | `Entregas/Investigaciones/<TrabajoDeInvestigacion>` |
-| Cronograma de la Materia | `ISW_CR_2025_4K3.ext` | `/ (raíz del proyecto)` |
-| Modalidad Académica de la Materia | `ISW_MA_2025_<NombreArchivo>.ext` | `/ (raíz del proyecto)` |
+| Nombre del Ítem de Configuración | Regla de Nombrado | Ubicación Física | Tipo de Ítem [Producto / Proyecto / Iteración] |
+|----------------------------------|-------------------|------------------|-----------------------------------------------|
+| Bibliografía | `ISW_B_<NombreLibro>.pdf` | `ISW_2025_4K3_G12/Documentacion/Bibliografia/Material_Bibliografia` | Proyecto |
+| Presentaciones | `ISW_P_[id]_<NombrePresentación>.pdf` | `ISW_2025_4K3_G12/Documentacion/Presentaciones` | Proyecto |
+| Resúmenes Propios | `ISW_Resumen_Parcial<NroParcial><Autor><Año>.<ext>` | `ISW_2025_4K3_G12/Documentacion/Resumenes` | Iteración |
+| Notas de Clase | `ISW_NC_<NombreArchivo>.<ext>` | `ISW_2025_4K3_G12/Documentacion/Notas_Clases` | Proyecto |
+| Clases Grabadas | `ISW_Links_ClasesGrabadas_<Curso>_<Año>.<ext>` | `ISW_2025_4K3_G12/Documentacion/Presentaciones/Clases_Grabadas` | Proyecto |
+| Ejercicios Resueltos | `ISW_ER_<NombreArchivo>_<Año>.<ext>` | `ISW_2025_4K3_G12/Ejercicios_Resueltos` | Iteración |
+| Trabajos Prácticos | `ISW_TP_<NumeroTP>.<ext>` | `ISW_2025_4K3_G12/Entregas/Trabajos_Practicos/<TrabajoPractico>` | Producto |
+| Trabajo De Investigación | `ISW_TIG_<NombreTrabajoInvestigacionGrupal>_<Curso>.<ext>` | `ISW_2025_4K3_G12/Entregas/Investigaciones/<TrabajoDeInvestigacion>` | Producto |
+| Cronograma de la Materia | `ISW_CR_2025_4K3.ext` | `ISW_2025_4K3_G12/` | Proyecto |
+| Modalidad Académica de la Materia | `ISW_MA_2025_<NombreArchivo>.ext` | `ISW_2025_4K3_G12/` | Proyecto |
 
 ### 3.3 📁 Estructura de Carpetas
 ```
