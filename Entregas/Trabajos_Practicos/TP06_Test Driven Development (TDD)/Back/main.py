@@ -1,48 +1,12 @@
-from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy.orm import Session
-from database import SessionLocal, engine
-from models import Base
-from schemas import User, UserCreate
-from crud import get_user, get_users, create_user, update_user, delete_user
+from fastapi import FastAPI
 
-Base.metadata.create_all(bind=engine)
+app = FastAPI(title="API Parque de Diversiones", version="1.0.0")
 
-app = FastAPI()
+# Aquí incluir los routers cuando estén implementados
+# app.include_router(parque.router)
+# app.include_router(actividad.router)
+# etc.
 
-# Dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-@app.post("/users/", response_model=User)
-def create_user_endpoint(user: UserCreate, db: Session = Depends(get_db)):
-    return create_user(db=db, user=user)
-
-@app.get("/users/", response_model=list[User])
-def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    users = get_users(db, skip=skip, limit=limit)
-    return users
-
-@app.get("/users/{user_id}", response_model=User)
-def read_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = get_user(db, user_id=user_id)
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return db_user
-
-@app.put("/users/{user_id}", response_model=User)
-def update_user_endpoint(user_id: int, user: UserCreate, db: Session = Depends(get_db)):
-    db_user = update_user(db, user_id=user_id, user=user)
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return db_user
-
-@app.delete("/users/{user_id}")
-def delete_user_endpoint(user_id: int, db: Session = Depends(get_db)):
-    db_user = delete_user(db, user_id=user_id)
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return {"message": "User deleted"}
+@app.get("/")
+def read_root():
+    return {"message": "API levantada"}
