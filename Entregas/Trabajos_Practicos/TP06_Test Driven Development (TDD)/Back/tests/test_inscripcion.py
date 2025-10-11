@@ -1,6 +1,12 @@
 import pytest
 from src.domain.services.inscripcion_service import InscripcionService
 from src.domain.models import Actividad, Visitante, Horario, EstadoHorario
+from src.domain.exceptions import (
+    CupoInsuficienteError,
+    TerminosNoAceptadosError,
+    HorarioNoEncontradoError,
+    VisitanteNoEncontradoError
+)
 
 def build_test_data(db_session):
     """Crear datos de prueba en la base de datos"""
@@ -101,12 +107,16 @@ def test_inscripcion_falla_sin_cupo_suficiente(db_session):
     visitantes = [data['ana'], data['luis']]  # 2 visitantes
 
     # Debería fallar por cupo insuficiente
-    with pytest.raises(ValueError, match="Cupo insuficiente"):
+    with pytest.raises(CupoInsuficienteError) as exc_info:
         svc.enroll(
             id_horario=horario_pequeno.id,
             visitantes=visitantes,
             acepta_terminos=True
         )
+
+    # Verificar detalles de la excepción
+    assert exc_info.value.cupo_disponible == 1
+    assert exc_info.value.cupo_solicitado == 2
 
 def test_inscripcion_falla_sin_aceptar_terminos(db_session):
     """Verificar que no se puede inscribir sin aceptar términos"""
@@ -116,7 +126,7 @@ def test_inscripcion_falla_sin_aceptar_terminos(db_session):
     visitantes = [data['ana']]
 
     # Debería fallar por no aceptar términos
-    with pytest.raises(ValueError, match="Debe aceptar términos y condiciones"):
+    with pytest.raises(TerminosNoAceptadosError):
         svc.enroll(
             id_horario=data['horario_tirolesa'].id,
             visitantes=visitantes,
@@ -131,12 +141,15 @@ def test_inscripcion_falla_horario_inexistente(db_session):
     visitantes = [data['ana']]
 
     # Debería fallar por horario inexistente
-    with pytest.raises(ValueError, match="Horario no encontrado"):
+    with pytest.raises(HorarioNoEncontradoError) as exc_info:
         svc.enroll(
             id_horario=999,  # ID inexistente
             visitantes=visitantes,
             acepta_terminos=True
         )
+
+    # Verificar detalles de la excepción
+    assert exc_info.value.id_horario == 999
 
 def test_inscripcion_falla_visitante_inexistente(db_session):
     """Verificar que no se puede inscribir visitante inexistente"""
@@ -149,9 +162,12 @@ def test_inscripcion_falla_visitante_inexistente(db_session):
     visitante_falso.id = 999  # ID que no existe en BD
 
     # Debería fallar por visitante inexistente
-    with pytest.raises(ValueError, match="Visitante Falso no encontrado"):
+    with pytest.raises(VisitanteNoEncontradoError) as exc_info:
         svc.enroll(
             id_horario=data['horario_tirolesa'].id,
             visitantes=[visitante_falso],
             acepta_terminos=True
         )
+
+    # Verificar detalles de la excepción
+    assert exc_info.value.nombre_visitante == "Falso"

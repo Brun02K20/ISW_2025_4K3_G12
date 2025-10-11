@@ -1,6 +1,12 @@
 # Lógica de negocio para inscripciones
 from sqlalchemy.orm import Session
 from src.domain.models import Actividad, Visitante, Horario, Inscripcion
+from src.domain.exceptions import (
+    CupoInsuficienteError,
+    TerminosNoAceptadosError,
+    HorarioNoEncontradoError,
+    VisitanteNoEncontradoError
+)
 from typing import List
 
 class InscripcionService:
@@ -12,16 +18,16 @@ class InscripcionService:
         # Verificar que el horario existe y tiene cupo disponible
         horario = self.db.query(Horario).filter(Horario.id == id_horario).first()
         if not horario:
-            raise ValueError("Horario no encontrado")
+            raise HorarioNoEncontradoError(id_horario)
 
         # Verificar cupo disponible
         cupo_disponible = horario.cupo_total - horario.cupo_ocupado
         if cupo_disponible < len(visitantes):
-            raise ValueError(f"Cupo insuficiente. Disponible: {cupo_disponible}, Solicitado: {len(visitantes)}")
+            raise CupoInsuficienteError(cupo_disponible, len(visitantes))
 
         # Verificar que se acepten términos y condiciones
         if not acepta_terminos:
-            raise ValueError("Debe aceptar términos y condiciones")
+            raise TerminosNoAceptadosError()
 
         # Crear inscripciones para cada visitante
         inscripciones = []
@@ -29,7 +35,7 @@ class InscripcionService:
             # Verificar que el visitante existe en la base de datos
             visitante_db = self.db.query(Visitante).filter(Visitante.id == visitante.id).first()
             if not visitante_db:
-                raise ValueError(f"Visitante {visitante.nombre} no encontrado")
+                raise VisitanteNoEncontradoError(visitante.nombre)
 
             # Crear inscripción
             inscripcion = Inscripcion(
