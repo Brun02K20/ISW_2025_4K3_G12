@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from database import get_db
-from schemas import Parque, ParqueCreate
-from crud.parque_crud import get_parque, create_parque, update_parque
+from src.domain.database import get_db
+from src.domain.schemas import Parque, ParqueCreate
+from src.domain.services.parque_service import get_parque, create_parque, update_parque
 
 router = APIRouter(prefix="/parque", tags=["parque"])
 

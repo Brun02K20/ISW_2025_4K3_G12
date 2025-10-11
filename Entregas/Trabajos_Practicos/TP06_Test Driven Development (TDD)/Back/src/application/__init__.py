@@ -1,0 +1,1 @@
+# Application layer - Entry points and configuration

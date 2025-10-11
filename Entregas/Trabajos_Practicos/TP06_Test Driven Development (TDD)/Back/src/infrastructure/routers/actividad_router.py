@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from database import get_db
-from schemas import Actividad, ActividadCreate
-from crud.actividad_crud import get_actividad, get_actividades, create_actividad, update_actividad, delete_actividad
+from src.domain.database import get_db
+from src.domain.schemas import Actividad, ActividadCreate
+from src.domain.services.actividad_service import get_actividad, get_actividades, create_actividad, update_actividad, delete_actividad
 
 router = APIRouter(prefix="/actividades", tags=["actividades"])
 

@@ -7,4 +7,4 @@ echo "📖 Documentación en: http://localhost:8080/docs"
 echo ""
 
 # Ejecutar el servidor
-uvicorn main:app --host 0.0.0.0 --port 8080 --reload
+uvicorn src.application.main:app --host 0.0.0.0 --port 8080 --reload

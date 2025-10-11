@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from database import get_db
-from schemas import EstadoHorario, EstadoHorarioCreate
-from crud.estado_horario_crud import get_estado_horario, get_estados_horario, create_estado_horario, update_estado_horario, delete_estado_horario
+from src.domain.database import get_db
+from src.domain.schemas import EstadoHorario, EstadoHorarioCreate
+from src.domain.services.estado_horario_service import get_estado_horario, get_estados_horario, create_estado_horario, update_estado_horario, delete_estado_horario
 
 router = APIRouter(prefix="/estados-horario", tags=["estados_horario"])
 
