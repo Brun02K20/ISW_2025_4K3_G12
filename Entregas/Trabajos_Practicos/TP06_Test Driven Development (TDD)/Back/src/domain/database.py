@@ -3,9 +3,7 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
 
-# Database URL - update with your PostgreSQL connection string
-# Database URL - using SQLite for development
-DATABASE_URL = "sqlite:///./parque.db"
+DATABASE_URL = "postgresql://postgres:admin@localhost:5432/parque_db"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
