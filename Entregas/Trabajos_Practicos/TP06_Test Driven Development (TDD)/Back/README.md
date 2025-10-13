@@ -106,4 +106,4 @@ uvicorn src.application.main:app --host 0.0.0.0 --port 8080 --reload
 - **PostgreSQL**: Base de datos relacional
 - **Pydantic**: Validación de datos
 - **pytest**: Framework de testing
-- **python**: lenguaje de programacion. version 3.12
+- **python**: lenguaje de programacion. version version = 3.12.6
