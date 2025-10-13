@@ -37,7 +37,7 @@ Para iniciar el servidor FastAPI:
 **En la terminal integrada de VS Code (recomendado):**
 ```bash
 # 1. Activar entorno virtual
-source venv/Scripts/activate  # Windows
+venv/Scripts/activate  # Desde Windows Powershell
 # o
 source venv/bin/activate     # Linux/Mac
 
@@ -106,3 +106,4 @@ uvicorn src.application.main:app --host 0.0.0.0 --port 8080 --reload
 - **PostgreSQL**: Base de datos relacional
 - **Pydantic**: Validación de datos
 - **pytest**: Framework de testing
+- **python**: lenguaje de programacion. version 3.12
