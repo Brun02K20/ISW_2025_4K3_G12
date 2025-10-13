@@ -55,3 +55,12 @@ class EstadoHorarioInvalidoError(ExcepcionDominio):
     def __init__(self, estado_actual: str):
         self.estado_actual = estado_actual
         super().__init__(f"El horario tiene un estado '{estado_actual}' que no permite inscripciones")
+
+
+class InscripcionDuplicadaError(ExcepcionDominio):
+    """Se lanza cuando un visitante ya está inscrito en un horario"""
+
+    def __init__(self, id_visitante: int, id_horario: int):
+        self.id_visitante = id_visitante
+        self.id_horario = id_horario
+        super().__init__(f"El visitante ID {id_visitante} ya está inscrito en el horario ID {id_horario}")

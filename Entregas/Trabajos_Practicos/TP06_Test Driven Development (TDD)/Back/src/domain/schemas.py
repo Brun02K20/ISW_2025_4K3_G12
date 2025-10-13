@@ -107,3 +107,20 @@ class Inscripcion(InscripcionBase):
 
     class Config:
         from_attributes = True
+
+# API schemas for Inscripcion endpoints
+class InscripcionCreateRequest(BaseModel):
+    id_horario: int
+    id_visitante: int
+    acepta_terminos: bool
+
+class InscripcionResponse(BaseModel):
+    id: int
+    id_horario: int
+    id_visitante: int
+    nro_personas: int
+    acepta_Terminos_Condiciones: bool
+    nombre_actividad: str
+
+    class Config:
+        from_attributes = True
