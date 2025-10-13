@@ -5,7 +5,8 @@ from src.domain.exceptions import (
     CupoInsuficienteError,
     TerminosNoAceptadosError,
     HorarioNoEncontradoError,
-    VisitanteNoEncontradoError
+    VisitanteNoEncontradoError,
+    InscripcionDuplicadaError
 )
 
 def build_test_data(db_session):
@@ -18,7 +19,7 @@ def build_test_data(db_session):
     tirolesa = Actividad(nombre="Tirolesa", requiere_talle=True)
     safari = Actividad(nombre="Safari", requiere_talle=False)
     palestra = Actividad(nombre="Palestra", requiere_talle=True)
-    jardineria = Actividad(nombre="Jardinería", requiere_talle=False)
+    jardineria = Actividad(nombre="Jardineria", requiere_talle=False)
 
     db_session.add_all([tirolesa, safari, palestra, jardineria])
     db_session.commit()
@@ -62,29 +63,28 @@ def build_test_data(db_session):
     }
 
 def test_inscripcion_exitosa_decrementa_cupo_y_devuelve_resultado(db_session):
-    # Preparar datos de prueba
+    """Verificar que se puede inscribir un visitante individual correctamente"""
     data = build_test_data(db_session)
 
     # Crear servicio
     svc = InscripcionService(db_session)
 
-    # Lista de visitantes
-    visitantes = [data['ana'], data['luis']]
-
-    # Realizar inscripción
-    res = svc.enroll(
+    # Realizar inscripción individual
+    res = svc.inscripcion_actividad(
         id_horario=data['horario_tirolesa'].id,
-        visitantes=visitantes,
+        id_visitante=data['ana'].id,
         acepta_terminos=True
     )
 
     # Verificar resultado
     assert res.id_horario == data['horario_tirolesa'].id
+    assert res.id_visitante == data['ana'].id
     assert res.acepta_Terminos_Condiciones == True
+    assert res.nro_personas == 1
 
     # Verificar que el cupo se decrementó
     horario_actualizado = db_session.query(Horario).filter(Horario.id == data['horario_tirolesa'].id).first()
-    assert horario_actualizado.cupo_ocupado == 2  # 0 + 2
+    assert horario_actualizado.cupo_ocupado == 1  # 0 + 1
     assert horario_actualizado.cupo_total == 5  # Sin cambios
 
 def test_inscripcion_falla_sin_cupo_suficiente(db_session):
@@ -96,7 +96,7 @@ def test_inscripcion_falla_sin_cupo_suficiente(db_session):
         id_actividad=data['tirolesa'].id,
         hora_inicio="11:00",
         hora_fin="12:00",
-        cupo_total=1,  # Solo 1 cupo
+        cupo_total=0,  # Sin cupo disponible
         cupo_ocupado=0,
         estado="activo"
     )
@@ -104,32 +104,30 @@ def test_inscripcion_falla_sin_cupo_suficiente(db_session):
     db_session.commit()
 
     svc = InscripcionService(db_session)
-    visitantes = [data['ana'], data['luis']]  # 2 visitantes
 
     # Debería fallar por cupo insuficiente
     with pytest.raises(CupoInsuficienteError) as exc_info:
-        svc.enroll(
+        svc.inscripcion_actividad(
             id_horario=horario_pequeno.id,
-            visitantes=visitantes,
+            id_visitante=data['ana'].id,
             acepta_terminos=True
         )
 
     # Verificar detalles de la excepción
-    assert exc_info.value.cupo_disponible == 1
-    assert exc_info.value.cupo_solicitado == 2
+    assert exc_info.value.cupo_disponible == 0
+    assert exc_info.value.cupo_solicitado == 1
 
 def test_inscripcion_falla_sin_aceptar_terminos(db_session):
     """Verificar que no se puede inscribir sin aceptar términos"""
     data = build_test_data(db_session)
 
     svc = InscripcionService(db_session)
-    visitantes = [data['ana']]
 
     # Debería fallar por no aceptar términos
     with pytest.raises(TerminosNoAceptadosError):
-        svc.enroll(
+        svc.inscripcion_actividad(
             id_horario=data['horario_tirolesa'].id,
-            visitantes=visitantes,
+            id_visitante=data['ana'].id,
             acepta_terminos=False
         )
 
@@ -138,13 +136,12 @@ def test_inscripcion_falla_horario_inexistente(db_session):
     data = build_test_data(db_session)
 
     svc = InscripcionService(db_session)
-    visitantes = [data['ana']]
 
     # Debería fallar por horario inexistente
     with pytest.raises(HorarioNoEncontradoError) as exc_info:
-        svc.enroll(
+        svc.inscripcion_actividad(
             id_horario=999,  # ID inexistente
-            visitantes=visitantes,
+            id_visitante=data['ana'].id,
             acepta_terminos=True
         )
 
@@ -157,17 +154,78 @@ def test_inscripcion_falla_visitante_inexistente(db_session):
 
     svc = InscripcionService(db_session)
 
-    # Crear visitante que no existe en BD
-    visitante_falso = Visitante(nombre="Falso", dni=999, edad=20, talle=1)
-    visitante_falso.id = 999  # ID que no existe en BD
-
     # Debería fallar por visitante inexistente
     with pytest.raises(VisitanteNoEncontradoError) as exc_info:
-        svc.enroll(
+        svc.inscripcion_actividad(
             id_horario=data['horario_tirolesa'].id,
-            visitantes=[visitante_falso],
+            id_visitante=999,  # ID inexistente
             acepta_terminos=True
         )
 
     # Verificar detalles de la excepción
-    assert exc_info.value.nombre_visitante == "Falso"
+    assert "Visitante ID 999" in str(exc_info.value)
+
+def test_inscripcion_falla_ya_inscrito(db_session):
+    """Verificar que no se puede inscribir a un horario al que ya estaba inscrito"""
+    data = build_test_data(db_session)
+
+    svc = InscripcionService(db_session)
+
+    # Primera inscripción - debería funcionar
+    svc.inscripcion_actividad(
+        id_horario=data['horario_tirolesa'].id,
+        id_visitante=data['ana'].id,
+        acepta_terminos=True
+    )
+
+    # Segunda inscripción del mismo visitante al mismo horario - debería fallar
+    with pytest.raises(InscripcionDuplicadaError) as exc_info:
+        svc.inscripcion_actividad(
+            id_horario=data['horario_tirolesa'].id,
+            id_visitante=data['ana'].id,
+            acepta_terminos=True
+        )
+
+    # Verificar detalles de la excepción
+    assert exc_info.value.id_visitante == data['ana'].id
+    assert exc_info.value.id_horario == data['horario_tirolesa'].id
+
+def test_get_all_inscripciones(db_session):
+    """Verificar que se pueden obtener todas las inscripciones con nombre de actividad"""
+    data = build_test_data(db_session)
+
+    svc = InscripcionService(db_session)
+
+    # Crear algunas inscripciones
+    svc.inscripcion_actividad(
+        id_horario=data['horario_tirolesa'].id,
+        id_visitante=data['ana'].id,
+        acepta_terminos=True
+    )
+
+    svc.inscripcion_actividad(
+        id_horario=data['horario_safari'].id,
+        id_visitante=data['luis'].id,
+        acepta_terminos=True
+    )
+
+    # Obtener todas las inscripciones
+    inscripciones = svc.get_all_inscripciones()
+
+    # Verificar resultado
+    assert len(inscripciones) == 2
+
+    # Verificar que contienen los datos correctos incluyendo nombre de actividad
+    nombres_actividades = [i.nombre_actividad for i in inscripciones]
+    assert "Tirolesa" in nombres_actividades
+    assert "Safari" in nombres_actividades
+
+    # Verificar que cada inscripción tiene todos los campos requeridos
+    for inscripcion in inscripciones:
+        assert hasattr(inscripcion, 'id')
+        assert hasattr(inscripcion, 'id_horario')
+        assert hasattr(inscripcion, 'id_visitante')
+        assert hasattr(inscripcion, 'nro_personas')
+        assert hasattr(inscripcion, 'acepta_Terminos_Condiciones')
+        assert hasattr(inscripcion, 'nombre_actividad')
+        assert isinstance(inscripcion.nombre_actividad, str)

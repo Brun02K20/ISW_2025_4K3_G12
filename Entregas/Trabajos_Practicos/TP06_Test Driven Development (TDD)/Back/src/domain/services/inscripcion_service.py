@@ -1,20 +1,33 @@
 # Lógica de negocio para inscripciones
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from src.domain.models import Actividad, Visitante, Horario, Inscripcion
 from src.domain.exceptions import (
     CupoInsuficienteError,
     TerminosNoAceptadosError,
     HorarioNoEncontradoError,
-    VisitanteNoEncontradoError
+    VisitanteNoEncontradoError,
+    InscripcionDuplicadaError
 )
 from typing import List
+from pydantic import BaseModel, ConfigDict
+
+class InscripcionConActividad(BaseModel):
+    """Clase auxiliar para devolver inscripciones con nombre de actividad"""
+    id: int
+    id_horario: int
+    id_visitante: int
+    nro_personas: int
+    acepta_Terminos_Condiciones: bool
+    nombre_actividad: str
+
+    model_config = ConfigDict(from_attributes=True)
 
 class InscripcionService:
     def __init__(self, db: Session):
         self.db = db
 
-    def enroll(self, id_horario: int, visitantes: List[Visitante], acepta_terminos: bool) -> Inscripcion:
-        """Realiza la inscripción de visitantes a un horario de actividad"""
+    def inscripcion_actividad(self, id_horario: int, id_visitante: int, acepta_terminos: bool) -> Inscripcion:
+        """Realiza la inscripción de un visitante individual a un horario de actividad"""
         # Verificar que el horario existe y tiene cupo disponible
         horario = self.db.query(Horario).filter(Horario.id == id_horario).first()
         if not horario:
@@ -22,39 +35,72 @@ class InscripcionService:
 
         # Verificar cupo disponible
         cupo_disponible = horario.cupo_total - horario.cupo_ocupado
-        if cupo_disponible < len(visitantes):
-            raise CupoInsuficienteError(cupo_disponible, len(visitantes))
+        if cupo_disponible < 1:
+            raise CupoInsuficienteError(cupo_disponible, 1)
 
         # Verificar que se acepten términos y condiciones
         if not acepta_terminos:
             raise TerminosNoAceptadosError()
 
-        # Crear inscripciones para cada visitante
-        inscripciones = []
-        for visitante in visitantes:
-            # Verificar que el visitante existe en la base de datos
-            visitante_db = self.db.query(Visitante).filter(Visitante.id == visitante.id).first()
-            if not visitante_db:
-                raise VisitanteNoEncontradoError(visitante.nombre)
+        # Verificar que el visitante existe en la base de datos
+        visitante = self.db.query(Visitante).filter(Visitante.id == id_visitante).first()
+        if not visitante:
+            raise VisitanteNoEncontradoError(f"Visitante ID {id_visitante}")
 
-            # Crear inscripción
-            inscripcion = Inscripcion(
-                id_horario=id_horario,
-                id_visitante=visitante.id,
-                nro_personas=1,  # Una inscripción por visitante
-                acepta_Terminos_Condiciones=acepta_terminos
-            )
-            self.db.add(inscripcion)
-            inscripciones.append(inscripcion)
+        # Verificar que el visitante no esté ya inscrito en este horario
+        inscripcion_existente = self.db.query(Inscripcion).filter(
+            Inscripcion.id_horario == id_horario,
+            Inscripcion.id_visitante == id_visitante
+        ).first()
+        if inscripcion_existente:
+            raise InscripcionDuplicadaError(id_visitante, id_horario)
+
+        # Crear inscripción
+        inscripcion = Inscripcion(
+            id_horario=id_horario,
+            id_visitante=id_visitante,
+            nro_personas=1,
+            acepta_Terminos_Condiciones=acepta_terminos
+        )
+        self.db.add(inscripcion)
 
         # Actualizar cupo ocupado
-        horario.cupo_ocupado += len(visitantes)
+        horario.cupo_ocupado += 1
         self.db.commit()
 
-        # Retornar la primera inscripción como resultado representativo
-        return inscripciones[0]
+        return inscripcion
 
-def create_inscripcion(db: Session, id_horario: int, visitantes: List[Visitante], acepta_terminos: bool):
-    """Función helper para crear inscripciones"""
+    def get_all_inscripciones(self) -> List[InscripcionConActividad]:
+        """Obtiene todas las inscripciones con el nombre de la actividad"""
+        # Hacer join con Horario y Actividad para obtener el nombre de la actividad
+        inscripciones = (
+            self.db.query(Inscripcion)
+            .join(Horario, Inscripcion.id_horario == Horario.id)
+            .join(Actividad, Horario.id_actividad == Actividad.id)
+            .options(joinedload(Inscripcion.horario).joinedload(Horario.actividad))
+            .all()
+        )
+
+        # Convertir a objetos con nombre de actividad
+        resultado = []
+        for inscripcion in inscripciones:
+            resultado.append(InscripcionConActividad(
+                id=inscripcion.id,
+                id_horario=inscripcion.id_horario,
+                id_visitante=inscripcion.id_visitante,
+                nro_personas=inscripcion.nro_personas,
+                acepta_Terminos_Condiciones=inscripcion.acepta_Terminos_Condiciones,
+                nombre_actividad=inscripcion.horario.actividad.nombre
+            ))
+
+        return resultado
+
+def create_inscripcion_individual(db: Session, id_horario: int, id_visitante: int, acepta_terminos: bool):
+    """Función helper para crear una inscripción individual"""
     service = InscripcionService(db)
-    return service.enroll(id_horario, visitantes, acepta_terminos)
+    return service.inscripcion_actividad(id_horario, id_visitante, acepta_terminos)
+
+def get_all_inscripciones(db: Session) -> List[InscripcionConActividad]:
+    """Función helper para obtener todas las inscripciones"""
+    service = InscripcionService(db)
+    return service.get_all_inscripciones()
