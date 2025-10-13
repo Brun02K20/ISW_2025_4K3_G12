@@ -1,6 +1,6 @@
 import pytest
 from src.domain.services.inscripcion_service import InscripcionService
-from src.domain.models.models import Actividad, Visitante, Horario, EstadoHorario
+from src.domain.models import Actividad, Visitante, Horario, EstadoHorario
 from src.domain.exceptions import (
     CupoInsuficienteError,
     TerminosNoAceptadosError,
