@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, model_validator
 from typing import Optional
 
 # User schemas (existing)
@@ -115,23 +115,27 @@ class PersonaInscripcion(BaseModel):
     edad: int
     talle: Optional[int] = None
 
-class InscripcionGrupalCreateRequest(BaseModel):
+class InscripcionUnificadaCreateRequest(BaseModel):
     id_horario: int
-    personas: list[PersonaInscripcion]
+    visitantes: list[PersonaInscripcion]  # Lista de visitantes (1 o más)
     acepta_terminos: bool
 
-class InscripcionCreateRequest(BaseModel):
-    id_horario: int
-    id_visitante: int
-    acepta_terminos: bool
+# Schema para respuesta con datos de visitantes
+class VisitanteInfo(BaseModel):
+    id: int
+    nombre: str
+    dni: int
+    edad: int
+    talle: Optional[int] = None
 
-class InscripcionResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+class InscripcionConVisitantes(BaseModel):
     id: int
     id_horario: int
-    id_visitante: int
     nro_personas: int
     acepta_Terminos_Condiciones: bool
     nombre_actividad: str
+    visitante: VisitanteInfo
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
