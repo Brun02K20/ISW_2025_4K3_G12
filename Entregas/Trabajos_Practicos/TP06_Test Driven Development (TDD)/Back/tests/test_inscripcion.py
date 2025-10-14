@@ -6,7 +6,8 @@ from src.domain.exceptions import (
     TerminosNoAceptadosError,
     HorarioNoEncontradoError,
     VisitanteNoEncontradoError,
-    InscripcionDuplicadaError
+    InscripcionDuplicadaError,
+    DatosVisitantesInvalidosError
 )
 
 def build_test_data(db_session):
@@ -259,3 +260,19 @@ def test_get_all_inscripciones(db_session):
     # 3. Validar los detalles de la excepción
     assert exc_info.value.cupo_disponible == 0  # Cupo total (3) - Cupo ocupado (3)
     assert exc_info.value.cupo_solicitado == 1 # El servicio intenta inscribir a 1 persona
+
+# datos para probar la falta de datos obligatorios
+@pytest.mark.parametrize("datos_incompletos, campo_faltante", [
+    ({"dni": 12345678, "edad": 25, "talle": 2}, "nombre"),
+    ({"nombre": "Ana", "edad": 25, "talle": 2}, "dni"),
+    ({"nombre": "Ana", "dni": 12345678, "talle": 2}, "edad"),
+])
+#ESTE TEST ESTÁ RARO, CREO QUE SE VA DEL SCOPE
+def test_creacion_visitante_sin_datos_requeridos_lanza_error(datos_incompletos, campo_faltante):
+    """
+    Verifica que la creación de un visitante falle si faltan datos obligatorios.
+    """
+    print(f"Probando creación de visitante sin el campo: {campo_faltante}")
+    with pytest.raises(DatosVisitantesInvalidosError) as exc_info:
+        crear_visitante_validado(**datos_incompletos)
+    assert campo_faltante in exc_info.value.campos_faltantes
