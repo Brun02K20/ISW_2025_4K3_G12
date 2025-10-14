@@ -109,6 +109,17 @@ class Inscripcion(InscripcionBase):
         from_attributes = True
 
 # API schemas for Inscripcion endpoints
+class PersonaInscripcion(BaseModel):
+    nombre: str
+    dni: int
+    edad: int
+    talle: Optional[int] = None
+
+class InscripcionGrupalCreateRequest(BaseModel):
+    id_horario: int
+    personas: list[PersonaInscripcion]
+    acepta_terminos: bool
+
 class InscripcionCreateRequest(BaseModel):
     id_horario: int
     id_visitante: int

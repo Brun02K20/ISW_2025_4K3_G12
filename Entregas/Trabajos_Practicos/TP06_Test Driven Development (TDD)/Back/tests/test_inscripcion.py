@@ -78,7 +78,7 @@ def test_inscripcion_exitosa_decrementa_cupo_y_devuelve_resultado(db_session):
         id_horario=data['horario_tirolesa'].id,
         id_visitante=data['ana'].id,
         acepta_terminos=True
-    )
+    )[0]  # Acceder al primer elemento de la lista
 
     # Verificar resultado
     assert res.id_horario == data['horario_tirolesa'].id
@@ -297,14 +297,14 @@ def test_inscripcion_exitosa_multiples_horarios_mismo_visitante(db_session):
         id_horario=data['horario_tirolesa'].id,
         id_visitante=data['ana'].id,
         acepta_terminos=True
-    )
+    )[0]
 
     # Segunda inscripción en horario diferente - debería funcionar también
     res2 = svc.inscripcion_actividad(
         id_horario=data['horario_safari'].id,
         id_visitante=data['ana'].id,
         acepta_terminos=True
-    )
+    )[0]
 
     # Verificar ambas inscripciones
     assert res1.id_visitante == data['ana'].id
