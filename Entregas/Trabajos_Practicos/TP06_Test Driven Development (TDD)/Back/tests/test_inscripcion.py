@@ -7,7 +7,8 @@ from src.domain.exceptions import (
     HorarioNoEncontradoError,
     VisitanteNoEncontradoError,
     InscripcionDuplicadaError,
-    DatosVisitantesInvalidosError
+    DatosVisitantesInvalidosError,
+    TalleRequeridoError
 )
 
 def build_test_data(db_session):
@@ -301,3 +302,27 @@ def test_inscripcion_superando_cupo_disponible_lanza_error(db_session):
     # 3. Validar los detalles de la excepción
     assert exc_info.value.cupo_disponible == 0  # Cupo total (3) - Cupo ocupado (3)
     assert exc_info.value.cupo_solicitado == 1 # El servicio intenta inscribir a 1 persona
+
+    def test_inscripcion_falla_requerimiento_talle_sin_talle(db_session):
+        """
+        Verifica que la inscripción falle si la actividad requiere talle y el visitante no tiene talle asignado.
+        """
+        # 1. Preparar los datos de prueba
+        data = build_test_data(db_session)
+
+        visitante_sin_talle = Visitante(id=343, nombre="Carlos", dni=11223344, edad=28, talle=None)
+        db_session.add(visitante_sin_talle)
+        db_session.commit()
+
+        svc = InscripcionService(db_session)
+
+        # 2. Verificar que se lanza la excepción al intentar inscribir sin talle
+        with pytest.raises(TalleRequeridoError) as exc_info:
+            svc.inscripcion_actividad(
+                id_horario=data['horario_tirolesa'].id,    # Como por ejemplo "Tirolesa" requiere talle, probamos con ese
+                id_visitante=visitante_sin_talle.id,
+                acepta_terminos=True
+            )
+
+        # 3. Validar que el error menciona la falta de talle, opcionalmente verificar detalles. Pero no es genérico entiendo.
+        assert exc_info.value.nombre_actividad == "Tirolesa"

@@ -72,3 +72,14 @@ class DatosVisitantesInvalidosError(ExcepcionDominio):
         self.campos_faltantes = campos_faltantes
         campos_str = ', '.join(campos_faltantes)
         super().__init__(f"No se puede crear el visitante. Faltan datos obligatorios: {campos_str}.")
+
+class TalleRequeridoError(Exception): # O hereda de tu ExcepcionDominio
+    """
+    Se lanza cuando una actividad requiere talle pero el visitante no lo tiene.
+    """
+    def init(self, id_visitante: int, nombre_actividad: str):
+        self.id_visitante = id_visitante
+        self.nombre_actividad = nombre_actividad
+        super().init(
+            f"La actividad '{nombre_actividad}' requiere un talle, pero el visitante ID {id_visitante} no tiene uno registrado."
+        )
