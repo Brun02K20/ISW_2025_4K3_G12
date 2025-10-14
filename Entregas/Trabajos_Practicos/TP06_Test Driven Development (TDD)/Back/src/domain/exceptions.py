@@ -77,9 +77,9 @@ class TalleRequeridoError(Exception): # O hereda de tu ExcepcionDominio
     """
     Se lanza cuando una actividad requiere talle pero el visitante no lo tiene.
     """
-    def init(self, id_visitante: int, nombre_actividad: str):
+    def __init__(self, id_visitante: int, nombre_actividad: str):
         self.id_visitante = id_visitante
         self.nombre_actividad = nombre_actividad
-        super().init(
+        super().__init__(
             f"La actividad '{nombre_actividad}' requiere un talle, pero el visitante ID {id_visitante} no tiene uno registrado."
         )
