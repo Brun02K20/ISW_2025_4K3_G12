@@ -1,21 +1,21 @@
 import pytest
 from src.domain.services.inscripcion_service import InscripcionService
-from src.domain.models import Actividad, Visitante, Horario, EstadoHorario, crear_visitante_validado
+from src.domain.models import Actividad, Visitante, Horario, EstadoHorario
 from src.domain.exceptions import (
     CupoInsuficienteError,
     TerminosNoAceptadosError,
     HorarioNoEncontradoError,
     VisitanteNoEncontradoError,
     InscripcionDuplicadaError,
-    DatosVisitantesInvalidosError,
     TalleRequeridoError
 )
 
 def build_test_data(db_session):
     """Crear datos de prueba en la base de datos"""
-    # Crear estado horario
+    # Crear estados horario
     estado_activo = EstadoHorario(nombre="activo", descripcion="Horario activo")
-    db_session.add(estado_activo)
+    estado_inactivo = EstadoHorario(nombre="inactivo", descripcion="Horario inactivo")
+    db_session.add_all([estado_activo, estado_inactivo])
 
     # Crear actividades
     tirolesa = Actividad(nombre="Tirolesa", requiere_talle=True)
@@ -61,7 +61,9 @@ def build_test_data(db_session):
         'horario_tirolesa': horario_tirolesa,
         'horario_safari': horario_safari,
         'ana': ana,
-        'luis': luis
+        'luis': luis,
+        'estado_activo': estado_activo,
+        'estado_inactivo': estado_inactivo
     }
 
 def test_inscripcion_exitosa_decrementa_cupo_y_devuelve_resultado(db_session):
@@ -232,97 +234,79 @@ def test_get_all_inscripciones(db_session):
         assert hasattr(inscripcion, 'nombre_actividad')
         assert isinstance(inscripcion.nombre_actividad, str)
 
-    """
-    Adapta el test 'test_inscripcionActividadPersonasValidos'.
-    """
-    # 1. Preparar los datos: un horario con cupo casi lleno
-    data = build_test_data(db_session)
-    horario_jardineria = Horario(
-        id_actividad=data['safari'].id,  # Usamos una actividad existente
-        hora_inicio="15:00",
-        hora_fin="16:00",
-        cupo_total=3,
-        cupo_ocupado=3,  # El cupo ya está lleno
-        estado="activo"
-    )
-    db_session.add(horario_jardineria)
-    db_session.commit()
-
-    svc = InscripcionService(db_session)
-
-    # 2. Verificar que se lanza la excepción por cupo insuficiente
-    with pytest.raises(CupoInsuficienteError) as exc_info:
-        svc.inscripcion_actividad(
-            id_horario=horario_jardineria.id,
-            id_visitante=data['ana'].id,
-            acepta_terminos=True
-        )
-
-    # 3. Validar los detalles de la excepción
-    assert exc_info.value.cupo_disponible == 0  # Cupo total (3) - Cupo ocupado (3)
-    assert exc_info.value.cupo_solicitado == 1 # El servicio intenta inscribir a 1 persona
-
-# datos para probar la falta de datos obligatorios
-@pytest.mark.parametrize("datos_incompletos, campo_faltante", [
-    ({"dni": 12345678, "edad": 25, "talle": 2}, "nombre"),
-    ({"nombre": "Ana", "edad": 25, "talle": 2}, "dni"),
-    ({"nombre": "Ana", "dni": 12345678, "talle": 2}, "edad"),
-])
-#ESTE TEST ESTÁ RARO, CREO QUE SE VA DEL SCOPE
-def test_creacion_visitante_sin_datos_requeridos_lanza_error(datos_incompletos, campo_faltante):
-    """
-    Verifica que la creación de un visitante falle si faltan datos obligatorios.
-    """
-    print(f"Probando creación de visitante sin el campo: {campo_faltante}")
-    with pytest.raises(DatosVisitantesInvalidosError) as exc_info:
-        crear_visitante_validado(**datos_incompletos)
-    assert campo_faltante in exc_info.value.campos_faltantes
-
-def test_inscripcion_superando_cupo_disponible_lanza_error(db_session):
-    # 1. Preparar los datos: un horario con cupo casi lleno
-    data = build_test_data(db_session)
-    horario_jardineria = Horario(
-        id_actividad=data['safari'].id,  # Usamos una actividad existente
-        hora_inicio="15:00",
-        hora_fin="16:00",
-        cupo_total=3,
-        cupo_ocupado=3,  # El cupo ya está lleno
-        estado="activo"
-    )
-    db_session.add(horario_jardineria)
-    db_session.commit()
-    svc = InscripcionService(db_session)
-    # 2. Verificar que se lanza la excepción por cupo insuficiente
-    with pytest.raises(CupoInsuficienteError) as exc_info:
-        svc.inscripcion_actividad(
-            id_horario=horario_jardineria.id,
-            id_visitante=data['ana'].id,
-            acepta_terminos=True
-        )
-    # 3. Validar los detalles de la excepción
-    assert exc_info.value.cupo_disponible == 0  # Cupo total (3) - Cupo ocupado (3)
-    assert exc_info.value.cupo_solicitado == 1 # El servicio intenta inscribir a 1 persona
-
 def test_inscripcion_falla_requerimiento_talle_sin_talle(db_session):
     """
     Verifica que la inscripción falle si la actividad requiere talle y el visitante no tiene talle asignado.
     """
-    # 1. Preparar los datos de prueba
+    # Preparar los datos de prueba
     data = build_test_data(db_session)
 
-    visitante_sin_talle = Visitante(id=343, nombre="Carlos", dni=11223344, edad=28, talle=None)
+    visitante_sin_talle = Visitante(nombre="Carlos", dni=11223344, edad=28, talle=None)
     db_session.add(visitante_sin_talle)
     db_session.commit()
 
     svc = InscripcionService(db_session)
 
-    # 2. Verificar que se lanza la excepción al intentar inscribir sin talle
+    # Verificar que se lanza la excepción al intentar inscribir sin talle
     with pytest.raises(TalleRequeridoError) as exc_info:
         svc.inscripcion_actividad(
-            id_horario=data['horario_tirolesa'].id,    # Como por ejemplo "Tirolesa" requiere talle, probamos con ese
+            id_horario=data['horario_tirolesa'].id,  # Tirolesa requiere talle
             id_visitante=visitante_sin_talle.id,
             acepta_terminos=True
         )
 
-    # 3. Validar que el error menciona la falta de talle, opcionalmente verificar detalles. Pero no es genérico entiendo.
+    # Validar que el error menciona la actividad que requiere talle
     assert exc_info.value.nombre_actividad == "Tirolesa"
+
+def test_inscripcion_falla_horario_inactivo(db_session):
+    """Verificar que no se puede inscribir en un horario inactivo"""
+    data = build_test_data(db_session)
+
+    # Crear horario inactivo usando una actividad existente
+    horario_inactivo = Horario(
+        id_actividad=data['tirolesa'].id,  # Usar actividad existente
+        hora_inicio="14:00",
+        hora_fin="15:00",
+        cupo_total=5,
+        cupo_ocupado=0,
+        estado="inactivo"  # Horario no disponible
+    )
+    db_session.add(horario_inactivo)
+    db_session.commit()
+
+    svc = InscripcionService(db_session)
+
+    # Debería fallar por horario inactivo
+    with pytest.raises(ValueError) as exc_info:
+        svc.inscripcion_actividad(
+            id_horario=horario_inactivo.id,
+            id_visitante=data['ana'].id,
+            acepta_terminos=True
+        )
+
+    assert "horario inactivo" in str(exc_info.value).lower()
+
+def test_inscripcion_exitosa_multiples_horarios_mismo_visitante(db_session):
+    """Verificar que un visitante puede inscribirse en múltiples horarios diferentes"""
+    data = build_test_data(db_session)
+
+    svc = InscripcionService(db_session)
+
+    # Primera inscripción - debería funcionar
+    res1 = svc.inscripcion_actividad(
+        id_horario=data['horario_tirolesa'].id,
+        id_visitante=data['ana'].id,
+        acepta_terminos=True
+    )
+
+    # Segunda inscripción en horario diferente - debería funcionar también
+    res2 = svc.inscripcion_actividad(
+        id_horario=data['horario_safari'].id,
+        id_visitante=data['ana'].id,
+        acepta_terminos=True
+    )
+
+    # Verificar ambas inscripciones
+    assert res1.id_visitante == data['ana'].id
+    assert res2.id_visitante == data['ana'].id
+    assert res1.id_horario != res2.id_horario

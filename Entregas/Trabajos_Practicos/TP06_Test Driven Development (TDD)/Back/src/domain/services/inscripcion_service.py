@@ -29,10 +29,15 @@ class InscripcionService:
 
     def inscripcion_actividad(self, id_horario: int, id_visitante: int, acepta_terminos: bool) -> Inscripcion:
         """Realiza la inscripción de un visitante individual a un horario de actividad"""
+
         # Verificar que el horario existe y tiene cupo disponible
         horario = self.db.query(Horario).filter(Horario.id == id_horario).first()
         if not horario:
             raise HorarioNoEncontradoError(id_horario)
+
+        # Verificar que el horario esté activo
+        if horario.estado != "activo":
+            raise ValueError(f"No se puede inscribir en un horario {horario.estado}")
 
         # Verificar cupo disponible
         cupo_disponible = horario.cupo_total - horario.cupo_ocupado
