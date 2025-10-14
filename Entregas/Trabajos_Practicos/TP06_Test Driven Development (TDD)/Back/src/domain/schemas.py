@@ -12,8 +12,7 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # Parque schemas
 class ParqueBase(BaseModel):
@@ -27,8 +26,7 @@ class ParqueCreate(ParqueBase):
 class Parque(ParqueBase):
     id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # EstadoHorario schemas
 class EstadoHorarioBase(BaseModel):
@@ -40,8 +38,7 @@ class EstadoHorarioCreate(EstadoHorarioBase):
 class EstadoHorario(EstadoHorarioBase):
     nombre: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # Actividad schemas
 class ActividadBase(BaseModel):
@@ -54,8 +51,7 @@ class ActividadCreate(ActividadBase):
 class Actividad(ActividadBase):
     id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # Horario schemas
 class HorarioBase(BaseModel):
@@ -72,8 +68,7 @@ class Horario(HorarioBase):
     id: int
     id_actividad: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # Visitante schemas
 class VisitanteBase(BaseModel):
@@ -88,8 +83,7 @@ class VisitanteCreate(VisitanteBase):
 class Visitante(VisitanteBase):
     id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # Inscripcion schemas
 class InscripcionBase(BaseModel):
@@ -105,8 +99,7 @@ class Inscripcion(InscripcionBase):
     id_horario: int
     id_visitante: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # API schemas for Inscripcion endpoints
 class PersonaInscripcion(BaseModel):
