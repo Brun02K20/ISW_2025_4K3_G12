@@ -64,3 +64,11 @@ class InscripcionDuplicadaError(ExcepcionDominio):
         self.id_visitante = id_visitante
         self.id_horario = id_horario
         super().__init__(f"El visitante ID {id_visitante} ya está inscrito en el horario ID {id_horario}")
+
+class DatosVisitantesInvalidosError(ExcepcionDominio):
+    """Se lanza cuando se intenta inscribir a un visitante le falta algún dato obligatorio"""
+    
+    def __init__(self, campos_faltantes: list):
+        self.campos_faltantes = campos_faltantes
+        campos_str = ', '.join(campos_faltantes)
+        super().__init__(f"No se puede crear el visitante. Faltan datos obligatorios: {campos_str}.")

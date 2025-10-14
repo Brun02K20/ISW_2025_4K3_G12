@@ -229,3 +229,33 @@ def test_get_all_inscripciones(db_session):
         assert hasattr(inscripcion, 'acepta_Terminos_Condiciones')
         assert hasattr(inscripcion, 'nombre_actividad')
         assert isinstance(inscripcion.nombre_actividad, str)
+
+    """
+    Adapta el test 'test_inscripcionActividadPersonasValidos'.
+    """
+    # 1. Preparar los datos: un horario con cupo casi lleno
+    data = build_test_data(db_session)
+    horario_jardineria = Horario(
+        id_actividad=data['safari'].id,  # Usamos una actividad existente
+        hora_inicio="15:00",
+        hora_fin="16:00",
+        cupo_total=3,
+        cupo_ocupado=3,  # El cupo ya está lleno
+        estado="activo"
+    )
+    db_session.add(horario_jardineria)
+    db_session.commit()
+
+    svc = InscripcionService(db_session)
+
+    # 2. Verificar que se lanza la excepción por cupo insuficiente
+    with pytest.raises(CupoInsuficienteError) as exc_info:
+        svc.inscripcion_actividad(
+            id_horario=horario_jardineria.id,
+            id_visitante=data['ana'].id,
+            acepta_terminos=True
+        )
+
+    # 3. Validar los detalles de la excepción
+    assert exc_info.value.cupo_disponible == 0  # Cupo total (3) - Cupo ocupado (3)
+    assert exc_info.value.cupo_solicitado == 1 # El servicio intenta inscribir a 1 persona

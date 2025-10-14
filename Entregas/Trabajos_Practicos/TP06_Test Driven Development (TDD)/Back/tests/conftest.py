@@ -8,7 +8,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from src.domain.database import Base
 
-TEST_DATABASE_URL = "postgresql://postgres:admin@localhost:5432/parque_db"
+TEST_DATABASE_URL = "postgresql://postgres:root@localhost:5432/parque_db"
 
 engine = create_engine(TEST_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
