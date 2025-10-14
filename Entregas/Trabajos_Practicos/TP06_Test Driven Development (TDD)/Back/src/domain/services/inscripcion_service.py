@@ -60,20 +60,12 @@ class InscripcionService:
         ).first()
         if inscripcion_existente:
             raise InscripcionDuplicadaError(id_visitante, id_horario)
-
-        #aca arranca verificacion del test talle
-
-        actividad = self.db.query(Actividad).filter(Actividad.id == horario.id_actividad).first()
-
-        if actividad.requiere_talle and not visitante.talle:
-            # CORRECTION: Use the instance 'actividad' to get the name string
+        # Verificar si la actividad requiere talle y si el visitante lo tiene
+        if horario.actividad.requiere_talle and not visitante.talle:
             raise TalleRequeridoError(
                 id_visitante=visitante.id,
-                nombre_actividad=actividad.nombre # <-- This passes the actual string, e.g., "Tirolesa"
+                nombre_actividad=horario.actividad.nombre
             )
-
-        #aca finaliza verificacion del test  
-        # Crear inscripción
         inscripcion = Inscripcion(
             id_horario=id_horario,
             id_visitante=id_visitante,
@@ -85,7 +77,7 @@ class InscripcionService:
         # Actualizar cupo ocupado
         horario.cupo_ocupado += 1
         self.db.commit()
-
+        
         return inscripcion
 
     def get_all_inscripciones(self) -> List[InscripcionConActividad]:
