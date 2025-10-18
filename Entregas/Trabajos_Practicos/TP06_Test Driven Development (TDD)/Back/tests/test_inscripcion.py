@@ -51,8 +51,8 @@ def build_test_data(db_session):
     db_session.commit()
 
     # Crear visitantes
-    ana = Visitante(nombre="Ana", dni=12345678, edad=25, talle=2)  # M
-    luis = Visitante(nombre="Luis", dni=87654321, edad=30, talle=3)  # L
+    ana = Visitante(nombre="Ana", dni=12345678, edad=25, talle="M")
+    luis = Visitante(nombre="Luis", dni=87654321, edad=30, talle="L")
 
     db_session.add_all([ana, luis])
     db_session.commit()
@@ -176,7 +176,7 @@ def test_inscripcion_crea_visitante_automaticamente_cuando_no_existe(db_session)
     data = build_test_data(db_session)
     
     # Crear datos de visitante que no existe en la BD
-    visitante_nuevo = {'nombre': 'Sofia Rodriguez', 'dni': 44444444, 'edad': 30, 'talle': 2}
+    visitante_nuevo = {'nombre': 'Sofia Rodriguez', 'dni': 44444444, 'edad': 30, 'talle': 'M'}
 
     svc = InscripcionService(db_session)
 
@@ -203,7 +203,7 @@ def test_inscripcion_crea_visitante_automaticamente_cuando_no_existe(db_session)
     assert visitante_creado is not None
     assert visitante_creado.nombre == 'Sofia Rodriguez'
     assert visitante_creado.edad == 30
-    assert visitante_creado.talle == 2
+    assert visitante_creado.talle == 'M'
 
     # Verificar que la inscripción apunta al visitante creado
     assert resultado[0].id_visitante == visitante_creado.id
@@ -302,36 +302,54 @@ def test_inscripcion_falla_requerimiento_talle_sin_talle(db_session):
     # Validar que el error menciona la actividad que requiere talle
     assert exc_info.value.nombre_actividad == "Tirolesa"
 
-def test_inscripcion_falla_horario_inactivo(db_session):
-    """Verificar que no se puede inscribir en un horario inactivo"""
+def test_inscripcion_falla_talle_invalido(db_session):
+    """Verificar que no se puede inscribir con un talle inválido"""
     data = build_test_data(db_session)
-    visitantes = visitante_a_lista(db_session, data['ana'].id)
-
-    # Crear horario inactivo usando una actividad existente
-    horario_inactivo = Horario(
-        id_actividad=data['tirolesa'].id,  # Usar actividad existente
-        hora_inicio="14:00",
-        hora_fin="15:00",
-        cupo_total=5,
-        cupo_ocupado=0,
-        estado="inactivo"  # Horario no disponible
-    )
-    db_session.add(horario_inactivo)
-    db_session.commit()
+    
+    # Intentar inscribir con talle inválido
+    visitante_invalido = {'nombre': 'Test User', 'dni': 99999999, 'edad': 25, 'talle': 'INVALID'}
 
     svc = InscripcionService(db_session)
 
-    # Debería fallar por horario inactivo
+    # Debería fallar por talle inválido
     with pytest.raises(ValueError) as exc_info:
         svc.inscripcion_actividad(
-            id_horario=horario_inactivo.id,
-            visitantes=visitantes,
+            id_horario=data['horario_tirolesa'].id,
+            visitantes=[visitante_invalido],
             acepta_terminos=True
         )
 
-    assert "horario inactivo" in str(exc_info.value).lower()
+    assert "talle" in str(exc_info.value).lower()
 
-def test_inscripcion_exitosa_multiples_horarios_mismo_visitante(db_session):
+def test_inscripcion_exitosa_con_diferentes_talles_validos(db_session):
+    """Verificar que se puede inscribir con diferentes talles válidos"""
+    data = build_test_data(db_session)
+    
+    # Lista de talles válidos a probar
+    talles_validos = ["XS", "S", "M", "L", "XL", "XXL"]
+    
+    svc = InscripcionService(db_session)
+    
+    for i, talle in enumerate(talles_validos):
+        dni = 10000000 + i  # DNI único para cada test
+        visitante = {'nombre': f'Test User {i}', 'dni': dni, 'edad': 25, 'talle': talle}
+        
+        # Realizar inscripción - debería funcionar
+        resultado = svc.inscripcion_actividad(
+            id_horario=data['horario_safari'].id,  # Safari no requiere talle específico
+            visitantes=[visitante],
+            acepta_terminos=True
+        )
+        
+        assert len(resultado) == 1
+        assert resultado[0].id_horario == data['horario_safari'].id
+        
+        # Verificar que el visitante fue creado con el talle correcto
+        visitante_creado = db_session.query(Visitante).filter(Visitante.dni == dni).first()
+        assert visitante_creado is not None
+        assert visitante_creado.talle == talle
+
+def test_inscripcion_falla_horario_inactivo(db_session):
     """Verificar que un visitante puede inscribirse en múltiples horarios diferentes"""
     data = build_test_data(db_session)
     visitantes = visitante_a_lista(db_session, data['ana'].id)
@@ -363,8 +381,8 @@ def test_inscripcion_crea_visitantes_automaticamente(db_session):
     
     # Crear lista de visitantes que no existen en la BD
     visitantes_nuevos = [
-        {'nombre': 'María García', 'dni': 11111111, 'edad': 28, 'talle': 2},  # M
-        {'nombre': 'Carlos López', 'dni': 22222222, 'edad': 35, 'talle': 3}   # L
+        {'nombre': 'María García', 'dni': 11111111, 'edad': 28, 'talle': 'M'},
+        {'nombre': 'Carlos López', 'dni': 22222222, 'edad': 35, 'talle': 'L'}
     ]
 
     svc = InscripcionService(db_session)
@@ -408,7 +426,7 @@ def test_inscripcion_exitosa_tres_visitantes(db_session):
     visitantes = [
         visitante_a_lista(db_session, data['ana'].id)[0],  # Ana existente
         visitante_a_lista(db_session, data['luis'].id)[0], # Luis existente
-        {'nombre': 'Pedro Martínez', 'dni': 33333333, 'edad': 22, 'talle': 1}  # Nuevo visitante
+        {'nombre': 'Pedro Martínez', 'dni': 33333333, 'edad': 22, 'talle': 'S'}  # Nuevo visitante
     ]
 
     svc = InscripcionService(db_session)
@@ -435,7 +453,7 @@ def test_inscripcion_exitosa_tres_visitantes(db_session):
     assert pedro is not None
     assert pedro.nombre == 'Pedro Martínez'
     assert pedro.edad == 22
-    assert pedro.talle == 1
+    assert pedro.talle == 'S'
 
     # Verificar que el cupo se decrementó correctamente (3 personas)
     horario_actualizado = db_session.query(Horario).filter(Horario.id == data['horario_safari'].id).first()
@@ -464,7 +482,7 @@ def test_post_inscripcion_endpoint_retorna_400_sin_cupo(client, db_session):
             "nombre": "Test User",
             "dni": 99999999,
             "edad": 25,
-            "talle": 2
+            "talle": "M"
         }],
         "acepta_terminos": True
     }
@@ -483,7 +501,7 @@ def test_post_inscripcion_endpoint_retorna_400_sin_aceptar_terminos(client, db_s
             "nombre": "Test User",
             "dni": 99999999,
             "edad": 25,
-            "talle": 2
+            "talle": "M"
         }],
         "acepta_terminos": False
     }
@@ -500,7 +518,7 @@ def test_post_inscripcion_endpoint_retorna_404_horario_inexistente(client):
             "nombre": "Test User",
             "dni": 99999999,
             "edad": 25,
-            "talle": 2
+            "talle": "M"
         }],
         "acepta_terminos": True
     }
