@@ -8,7 +8,8 @@ from src.domain.exceptions import (
     VisitanteNoEncontradoError,
     InscripcionDuplicadaError,
     TalleRequeridoError,
-    DatosVisitantesInvalidosError
+    DatosVisitantesInvalidosError,
+    EdadMinimaNoCumplidaError
 )
 from typing import List, Optional
 from pydantic import BaseModel, ConfigDict
@@ -99,6 +100,27 @@ class InscripcionService:
                 raise TalleRequeridoError(
                     id_visitante=visitante.id,
                     nombre_actividad=horario.actividad.nombre
+                )
+            
+            # Verificar que cumpla la edad mínima (si aplica en actividad)
+            if horario.actividad.nombre == "Palestra" and visitante.edad < 12:
+                # Rollback de visitantes creados si hay error
+                for v in visitantes_creados:
+                    self.db.delete(v)
+                raise EdadMinimaNoCumplidaError(
+                    nombre_actividad=horario.actividad.nombre,
+                    edad_minima=12,
+                    edad_visitante=visitante.edad
+                )
+            if horario.actividad.nombre == "Tirolesa" and visitante.edad < 10:
+                # Rollback de visitantes creados si hay error
+                for v in visitantes_creados:
+                    self.db.delete(v)
+                raise EdadMinimaNoCumplidaError(
+                    id_visitante=visitante.id,
+                    nombre_actividad=horario.actividad.nombre,
+                    edad_minima=10,
+                    edad_visitante=visitante.edad
                 )
 
             # Crear inscripción

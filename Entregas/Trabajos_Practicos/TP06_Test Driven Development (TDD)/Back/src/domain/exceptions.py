@@ -83,3 +83,28 @@ class TalleRequeridoError(Exception): # O hereda de tu ExcepcionDominio
         super().__init__(
             f"La actividad '{nombre_actividad}' requiere un talle, pero el visitante ID {id_visitante} no tiene uno registrado."
         )
+
+class EdadMinimaNoCumplidaError(Exception):
+    """
+    Se lanza cuando un visitante no cumple con la edad mínima requerida para una actividad.
+    """
+    def __init__(self, id_visitante: int, nombre_actividad: str, edad_minima: int, edad_visitante: int):
+        self.id_visitante = id_visitante
+        self.nombre_actividad = nombre_actividad
+        self.edad_minima = edad_minima
+        self.edad_visitante = edad_visitante
+        super().__init__(
+            f"El visitante ID {id_visitante} tiene {edad_visitante} años, "
+            f"pero la actividad '{nombre_actividad}' requiere una edad mínima de {edad_minima} años."
+        )
+
+class MaximoVisitantesSuperadoError(Exception):
+    """
+    Se lanza cuando se intenta inscribir más de 10 visitantes en una sola inscripción.
+    """
+    def __init__(self, cantidad_visitantes: int):
+        self.cantidad_visitantes = cantidad_visitantes
+        super().__init__(
+            f"No se pueden inscribir más de 10 visitantes en una sola inscripción. "
+            f"Cantidad proporcionada: {cantidad_visitantes}."
+        )
