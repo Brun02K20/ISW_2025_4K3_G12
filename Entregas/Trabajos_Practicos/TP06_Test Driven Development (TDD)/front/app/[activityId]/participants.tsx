@@ -98,7 +98,9 @@ export default function ParticipantsForm() {
         }
         break;
       case "clothingSize":
-        if (activity?.requiresSize && !value) return "Este campo es requerido";
+        if (activity?.requiresSize && (!value || value === "")) {
+          return "Este campo es requerido";
+        }
         break;
     }
     return undefined;
@@ -186,7 +188,11 @@ export default function ParticipantsForm() {
     field: keyof Participant,
     valueOverride?: string
   ) => {
-    const value = valueOverride ?? participants[index][field] ?? "";
+    // Usar el valor override si se proporciona, sino tomar del estado actual
+    const value =
+      valueOverride !== undefined
+        ? valueOverride
+        : participants[index][field] || "";
     const error = validateField(index, field, value);
 
     setErrors((prev) => {
@@ -201,7 +207,6 @@ export default function ParticipantsForm() {
           delete newErrors[index];
         }
       }
-
       return newErrors;
     });
   };
@@ -415,8 +420,29 @@ export default function ParticipantsForm() {
                     <Picker
                       selectedValue={participant.clothingSize}
                       onValueChange={(value) => {
+                        // Actualizamos el valor
                         handleFieldChange(index, "clothingSize", value);
-                        handleFieldBlur(index, "clothingSize", value); // ✅ pasamos el valor actualizado
+
+                        // Validamos inmediatamente
+                        const error = validateField(
+                          index,
+                          "clothingSize",
+                          value
+                        );
+                        setErrors((prev) => {
+                          const newErrors = { ...prev };
+                          if (!newErrors[index]) newErrors[index] = {};
+
+                          if (error) {
+                            newErrors[index].clothingSize = error;
+                          } else {
+                            delete newErrors[index].clothingSize;
+                            if (Object.keys(newErrors[index]).length === 0)
+                              delete newErrors[index];
+                          }
+
+                          return newErrors;
+                        });
                       }}
                       style={styles.picker}
                       dropdownIconColor="#6b7280"
@@ -436,7 +462,6 @@ export default function ParticipantsForm() {
                       ))}
                     </Picker>
                   </View>
-
                   {errors[index]?.clothingSize && (
                     <Text style={styles.errorText}>
                       {errors[index].clothingSize}
