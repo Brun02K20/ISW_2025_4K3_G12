@@ -51,8 +51,8 @@ def build_test_data(db_session):
     db_session.commit()
 
     # Crear visitantes
-    ana = Visitante(nombre="Ana", dni=12345678, edad=25, talle=2)  # M
-    luis = Visitante(nombre="Luis", dni=87654321, edad=30, talle=3)  # L
+    ana = Visitante(nombre="Ana", dni=12345678, edad=25, talle="M")
+    luis = Visitante(nombre="Luis", dni=87654321, edad=30, talle="XL")
 
     db_session.add_all([ana, luis])
     db_session.commit()
@@ -176,7 +176,7 @@ def test_inscripcion_crea_visitante_automaticamente_cuando_no_existe(db_session)
     data = build_test_data(db_session)
     
     # Crear datos de visitante que no existe en la BD
-    visitante_nuevo = {'nombre': 'Sofia Rodriguez', 'dni': 44444444, 'edad': 30, 'talle': 2}
+    visitante_nuevo = {'nombre': 'Sofia Rodriguez', 'dni': 44444444, 'edad': 30, 'talle': "S"}
 
     svc = InscripcionService(db_session)
 
@@ -203,7 +203,7 @@ def test_inscripcion_crea_visitante_automaticamente_cuando_no_existe(db_session)
     assert visitante_creado is not None
     assert visitante_creado.nombre == 'Sofia Rodriguez'
     assert visitante_creado.edad == 30
-    assert visitante_creado.talle == 2
+    assert visitante_creado.talle == "S"
 
     # Verificar que la inscripción apunta al visitante creado
     assert resultado[0].id_visitante == visitante_creado.id
@@ -363,8 +363,8 @@ def test_inscripcion_crea_visitantes_automaticamente(db_session):
     
     # Crear lista de visitantes que no existen en la BD
     visitantes_nuevos = [
-        {'nombre': 'María García', 'dni': 11111111, 'edad': 28, 'talle': 2},  # M
-        {'nombre': 'Carlos López', 'dni': 22222222, 'edad': 35, 'talle': 3}   # L
+        {'nombre': 'María García', 'dni': 11111111, 'edad': 28, 'talle': "L"},  # M
+        {'nombre': 'Carlos López', 'dni': 22222222, 'edad': 35, 'talle': "XXXL"}   # L
     ]
 
     svc = InscripcionService(db_session)
@@ -408,7 +408,7 @@ def test_inscripcion_exitosa_tres_visitantes(db_session):
     visitantes = [
         visitante_a_lista(db_session, data['ana'].id)[0],  # Ana existente
         visitante_a_lista(db_session, data['luis'].id)[0], # Luis existente
-        {'nombre': 'Pedro Martínez', 'dni': 33333333, 'edad': 22, 'talle': 1}  # Nuevo visitante
+        {'nombre': 'Pedro Martínez', 'dni': 33333333, 'edad': 22, 'talle': "M"}  # Nuevo visitante
     ]
 
     svc = InscripcionService(db_session)
@@ -435,7 +435,7 @@ def test_inscripcion_exitosa_tres_visitantes(db_session):
     assert pedro is not None
     assert pedro.nombre == 'Pedro Martínez'
     assert pedro.edad == 22
-    assert pedro.talle == 1
+    assert pedro.talle == "M"
 
     # Verificar que el cupo se decrementó correctamente (3 personas)
     horario_actualizado = db_session.query(Horario).filter(Horario.id == data['horario_safari'].id).first()
@@ -464,7 +464,7 @@ def test_post_inscripcion_endpoint_retorna_400_sin_cupo(client, db_session):
             "nombre": "Test User",
             "dni": 99999999,
             "edad": 25,
-            "talle": 2
+            "talle": "XL"
         }],
         "acepta_terminos": True
     }
@@ -483,7 +483,7 @@ def test_post_inscripcion_endpoint_retorna_400_sin_aceptar_terminos(client, db_s
             "nombre": "Test User",
             "dni": 99999999,
             "edad": 25,
-            "talle": 2
+            "talle": "XL"
         }],
         "acepta_terminos": False
     }
@@ -500,7 +500,7 @@ def test_post_inscripcion_endpoint_retorna_404_horario_inexistente(client):
             "nombre": "Test User",
             "dni": 99999999,
             "edad": 25,
-            "talle": 2
+            "talle": "XL"
         }],
         "acepta_terminos": True
     }
