@@ -51,10 +51,10 @@ class Visitante(Base):
     nombre = Column(String)
     dni = Column(Integer)
     edad = Column(Integer)
-    talle = Column(Integer)
+    talle = Column(String)  # Cambiado de Integer a String
     
 from .exceptions import DatosVisitantesInvalidosError
-def crear_visitante_validado(nombre: str = None, dni: int = None, edad: int = None, talle: int = None) -> Visitante:
+def crear_visitante_validado(nombre: str = None, dni: int = None, edad: int = None, talle: str = None) -> Visitante:
     campos_faltantes = []
 
     if not nombre:

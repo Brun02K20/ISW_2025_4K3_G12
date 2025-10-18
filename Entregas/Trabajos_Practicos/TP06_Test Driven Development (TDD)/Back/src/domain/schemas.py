@@ -75,7 +75,7 @@ class VisitanteBase(BaseModel):
     nombre: str
     dni: int
     edad: int
-    talle: int
+    talle: str
 
 class VisitanteCreate(VisitanteBase):
     pass
@@ -106,7 +106,7 @@ class PersonaInscripcion(BaseModel):
     nombre: str
     dni: int
     edad: int
-    talle: Optional[int] = None
+    talle: Optional[str] = None
 
 class InscripcionUnificadaCreateRequest(BaseModel):
     id_horario: int
@@ -119,7 +119,7 @@ class VisitanteInfo(BaseModel):
     nombre: str
     dni: int
     edad: int
-    talle: Optional[int] = None
+    talle: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
