@@ -1,4 +1,5 @@
 import { sendInscriptionEmail } from "@/services/email.service";
+import { createInscripcion } from "@/services/inscripcion.service";
 import { Ionicons } from '@expo/vector-icons';
 import Checkbox from 'expo-checkbox';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -20,11 +21,13 @@ import { convertApiScheduleToSchedule, Participant, Schedule } from '../../types
 export default function Confirmation() {
   const router = useRouter();
   const { activityId, scheduleId, participants } = useLocalSearchParams();
-  const { getSchedulesByActivity } = useSchedules();
+  const { getSchedulesByActivity, fetchSchedules } = useSchedules();
   
   const [aceptaTerminos, setAceptaTerminos] = useState(false);
   const [sending, setSending] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null);
 
   // Normalize params
@@ -68,30 +71,60 @@ export default function Confirmation() {
       return;
     }
 
-    const data = {
+    // Preparar datos para ambos servicios
+    const visitantesData = participantsData.map((p) => ({
+      nombre: p.fullName,
+      dni: Number(p.dni),
+      edad: Number(p.age),
+      talle: p.clothingSize || "",
+    }));
+
+    // Datos para la API (sin activity_name)
+    const apiData = {
+      id_horario: Number(normalizedScheduleId) || 0,
+      visitantes: visitantesData,
+      acepta_terminos: aceptaTerminos,
+    };
+
+    // Datos para el email (con activity_name)
+    const emailData = {
       id_horario: Number(normalizedScheduleId) || 0,
       nombre_actividad: activity.name,
-      visitantes: participantsData.map((p) => ({
-        nombre: p.fullName,
-        dni: Number(p.dni),
-        edad: Number(p.age),
-        talle: p.clothingSize || "",
-      })),
+      visitantes: visitantesData,
       acepta_terminos: aceptaTerminos,
     };
 
     try {
       setSending(true);
-      const response = await sendInscriptionEmail(data);
 
-      if (response.success) {
-        setShowSuccessModal(true);
-      } else {
-        alert("❌ Error al enviar la inscripción. Intenta nuevamente.");
+      // 1. Enviar a la API
+      const apiResponse = await createInscripcion(apiData);
+
+      if (!apiResponse.success) {
+        // Si la API falla, mostrar modal de error
+        setErrorMessage(apiResponse.message);
+        setShowErrorModal(true);
+        return;
       }
+
+      // 2. Si la API fue exitosa, enviar el email
+      const emailResponse = await sendInscriptionEmail(emailData);
+
+      if (!emailResponse.success) {
+        // Si el email falla, avisar pero considerar la reserva exitosa
+        console.warn("⚠️ Inscripción guardada pero el email falló:", emailResponse.message);
+      }
+
+      // 3. Actualizar los horarios en el contexto global
+      await fetchSchedules();
+
+      // 4. Mostrar modal de éxito
+      setShowSuccessModal(true);
+
     } catch (error) {
       console.error("Error al confirmar reserva:", error);
-      alert("❌ Error al enviar la inscripción. Intenta nuevamente.");
+      setErrorMessage("Ocurrió un error inesperado. Por favor, intenta nuevamente.");
+      setShowErrorModal(true);
     } finally {
       setSending(false);
     }
@@ -266,6 +299,48 @@ export default function Confirmation() {
             >
               <Text style={styles.modalButtonText}>Aceptar</Text>
             </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Error Modal */}
+      <Modal
+        visible={showErrorModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowErrorModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalIconContainerError}>
+              <Ionicons name="close-circle" size={80} color="#dc2626" />
+            </View>
+            
+            <Text style={styles.modalTitleError}>Error al Confirmar</Text>
+            <Text style={styles.modalMessage}>
+              {errorMessage}
+            </Text>
+            <Text style={styles.modalSubMessage}>
+              Por favor, intenta nuevamente o contacta con soporte si el problema persiste.
+            </Text>
+            
+            <View style={styles.modalButtonsRow}>
+              <TouchableOpacity 
+                style={styles.modalButtonSecondary}
+                onPress={() => setShowErrorModal(false)}
+              >
+                <Text style={styles.modalButtonSecondaryText}>Volver</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.modalButtonError}
+                onPress={() => {
+                  setShowErrorModal(false);
+                  handleConfirm();
+                }}
+              >
+                <Text style={styles.modalButtonText}>Reintentar</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -547,5 +622,47 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#ffffff',
     textAlign: 'center',
+  },
+  // Error Modal styles
+  modalIconContainerError: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#fee2e2',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+  },
+  modalTitleError: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#991b1b',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  modalButtonsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  modalButtonSecondary: {
+    flex: 1,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    backgroundColor: '#f3f4f6',
+  },
+  modalButtonSecondaryText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#4b5563',
+    textAlign: 'center',
+  },
+  modalButtonError: {
+    flex: 1,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    backgroundColor: '#dc2626',
   },
 });

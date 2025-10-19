@@ -33,7 +33,7 @@ export const sendInscriptionEmail = async (data: InscripcionData) => {
     activity_name: data.nombre_actividad,
     acepta_terminos: data.acepta_terminos ? "Sí" : "No",
     visitantes,
-    email: "bvirinni@gmail.com"
+    email: "bvirinni@gmail.com",
   };
 
   try {
