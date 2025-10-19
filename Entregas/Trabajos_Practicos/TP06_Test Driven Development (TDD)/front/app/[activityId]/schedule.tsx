@@ -1,3 +1,4 @@
+import { activityStyles } from '@/data/activitiesStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -10,32 +11,66 @@ import {
   View,
 } from 'react-native';
 import { useSchedules } from '../../contexts/SchedulesContext';
-import { activitiesInfo } from '../../data/activities';
 import { Schedule, convertApiScheduleToSchedule } from '../../types';
 
 export default function SelectSchedule() {
   const router = useRouter();
   const { activityId } = useLocalSearchParams();
-  const { getSchedulesByActivity } = useSchedules();
-  const [selectedSchedule, setSelectedSchedule] = useState<string | null>(null);
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const { schedules } = useSchedules();
 
-  // Ensure activityId is a string
+  const [selectedSchedule, setSelectedSchedule] = useState<string | null>(null);
+  const [filteredSchedules, setFilteredSchedules] = useState<Schedule[]>([]);
+  const [activity, setActivity] = useState<{
+    id: string;
+    name: string;
+    description: string;
+    color: string;
+    icon: string;
+  } | null>(null);
+
+  // Normalizamos activityId
   const normalizedActivityId = Array.isArray(activityId) ? activityId[0] : activityId;
 
-  const activity = activitiesInfo.find(a => a.id === normalizedActivityId);
-
   useEffect(() => {
-    if (activity) {
-      // Obtener horarios del contexto (sin hacer fetch)
-      const apiSchedules = getSchedulesByActivity(activity.name);
-      const convertedSchedules = apiSchedules
-        .map(convertApiScheduleToSchedule)
-        .sort((a, b) => a.time.localeCompare(b.time));
-      
-      setSchedules(convertedSchedules);
+    if (!normalizedActivityId || schedules.length === 0) return;
+
+    // Buscar la actividad por ID dentro de los schedules
+    const relatedSchedules = schedules.filter(
+      (s) => s.actividad.id.toString() === normalizedActivityId && s.estado === 'activo'
+    );
+
+    if (relatedSchedules.length === 0) return;
+
+    const actividad = relatedSchedules[0].actividad;
+
+    // Buscar icono y color desde activityStyles
+    const style = activityStyles[actividad.nombre] || { icon: '❓', color: '#9ca3af' };
+
+    // Setear actividad actual
+    setActivity({
+      id: actividad.id.toString(),
+      name: actividad.nombre,
+      description: actividad.descripcion,
+      color: style.color,
+      icon: style.icon,
+    });
+
+    // Convertir y ordenar los horarios
+    const convertedSchedules = relatedSchedules
+      .map(convertApiScheduleToSchedule)
+      .sort((a, b) => a.time.localeCompare(b.time));
+
+    setFilteredSchedules(convertedSchedules);
+  }, [schedules, normalizedActivityId]);
+
+  const handleContinue = () => {
+    if (selectedSchedule) {
+      router.push({
+        pathname: '/[activityId]/participants',
+        params: { activityId: normalizedActivityId, scheduleId: selectedSchedule },
+      });
     }
-  }, [activity]);
+  };
 
   if (!activity) {
     return (
@@ -50,15 +85,6 @@ export default function SelectSchedule() {
     );
   }
 
-  const handleContinue = () => {
-    if (selectedSchedule) {
-      router.push({
-        pathname: '/[activityId]/participants',
-        params: { activityId: normalizedActivityId, scheduleId: selectedSchedule },
-      });
-    }
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView}>
@@ -67,24 +93,26 @@ export default function SelectSchedule() {
             <Ionicons name="arrow-back" size={24} color="#1f2937" />
           </TouchableOpacity>
           <Text style={styles.title}>Selecciona el Horario</Text>
-          <Text style={styles.subtitle}>Elige un horario disponible para {activity.name}</Text>
+          <Text style={styles.subtitle}>
+            Elige un horario disponible para {activity.name}
+          </Text>
         </View>
 
         <View style={styles.content}>
           <View style={styles.selectedActivity}>
             <Text style={styles.labelText}>Actividad seleccionada:</Text>
-            <Text style={styles.activityNameText}>{activity.name}</Text>
+            <Text style={styles.activityNameText}>{activity.icon} {activity.name}</Text>
           </View>
 
           <Text style={styles.sectionTitle}>Horarios disponibles:</Text>
 
-          {schedules.length === 0 ? (
+          {filteredSchedules.length === 0 ? (
             <View style={styles.emptyContainer}>
               <Ionicons name="calendar-outline" size={48} color="#9ca3af" />
               <Text style={styles.emptyText}>No hay horarios disponibles</Text>
             </View>
           ) : (
-            schedules.map((schedule) => (
+            filteredSchedules.map((schedule) => (
               <TouchableOpacity
                 key={schedule.id}
                 style={[
@@ -92,7 +120,9 @@ export default function SelectSchedule() {
                   selectedSchedule === schedule.id && styles.scheduleCardSelected,
                   schedule.status === 'full' && styles.scheduleCardDisabled,
                 ]}
-                onPress={() => schedule.status === 'available' && setSelectedSchedule(schedule.id)}
+                onPress={() =>
+                  schedule.status === 'available' && setSelectedSchedule(schedule.id)
+                }
                 disabled={schedule.status === 'full'}
               >
                 <View style={styles.scheduleLeft}>
@@ -152,6 +182,7 @@ export default function SelectSchedule() {
     </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

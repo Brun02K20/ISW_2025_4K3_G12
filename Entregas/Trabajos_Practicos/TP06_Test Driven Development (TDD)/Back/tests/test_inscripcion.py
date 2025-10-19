@@ -61,12 +61,21 @@ def build_test_data(db_session):
         id_actividad=jardineria.id,
         hora_inicio="14:00",
         hora_fin="15:00",
-        cupo_total=12,
+        cupo_total=10,
         cupo_ocupado=0,
         estado="activo"
     )
 
-    db_session.add_all([horario_tirolesa, horario_safari, horario_palestra, horario_jardineria])
+    horario_palestra_2 = Horario(
+        id_actividad=palestra.id,
+        hora_inicio="15:00",
+        hora_fin="16:00",
+        cupo_total=8,
+        cupo_ocupado=0,
+        estado="activo"
+    )
+
+    db_session.add_all([horario_tirolesa, horario_safari, horario_palestra, horario_jardineria, horario_palestra_2])
     db_session.commit()
 
     # Crear visitantes

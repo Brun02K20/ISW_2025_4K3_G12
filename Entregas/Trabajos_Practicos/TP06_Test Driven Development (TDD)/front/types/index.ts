@@ -8,6 +8,7 @@ export interface ApiSchedule {
   cupo_ocupado: number;
   estado: string;
   actividad: {
+    descripcion: string;
     id: number;
     nombre: string;
     requiere_talle: boolean;

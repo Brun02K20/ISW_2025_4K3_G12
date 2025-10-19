@@ -1,3 +1,4 @@
+import { activityStyles } from "@/data/activitiesStyles";
 import { sendInscriptionEmail } from "@/services/email.service";
 import { createInscripcion } from "@/services/inscripcion.service";
 import { Ionicons } from '@expo/vector-icons';
@@ -15,13 +16,12 @@ import {
   View,
 } from 'react-native';
 import { useSchedules } from '../../contexts/SchedulesContext';
-import { activitiesInfo } from '../../data/activities';
 import { convertApiScheduleToSchedule, Participant, Schedule } from '../../types';
 
 export default function Confirmation() {
   const router = useRouter();
   const { activityId, scheduleId, participants } = useLocalSearchParams();
-  const { getSchedulesByActivity, fetchSchedules } = useSchedules();
+  const { getSchedulesByActivity, fetchSchedules, schedules } = useSchedules();
   
   const [aceptaTerminos, setAceptaTerminos] = useState(false);
   const [sending, setSending] = useState(false);
@@ -29,12 +29,38 @@ export default function Confirmation() {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null);
+  const [activity, setActivity] = useState<any | null>(null);
 
   // Normalize params
   const normalizedActivityId = Array.isArray(activityId) ? activityId[0] : activityId;
   const normalizedScheduleId = Array.isArray(scheduleId) ? scheduleId[0] : scheduleId;
 
-  const activity = activitiesInfo.find(a => a.id === normalizedActivityId);
+  // ✅ Obtenemos la actividad directamente desde schedules (API)
+    useEffect(() => {
+      if (!schedules || schedules.length === 0) return;
+  
+      // Agrupar actividades únicas igual que en SelectActivity
+      const grouped = new Map<number, any>();
+  
+      for (const s of schedules) {
+        const { actividad } = s;
+        if (!grouped.has(actividad.id)) grouped.set(actividad.id, actividad);
+      }
+  
+      const foundActivity = grouped.get(Number(normalizedActivityId));
+      if (foundActivity) {
+        const style = activityStyles[foundActivity.nombre] || { color: "#9ca3af", icon: "❓" };
+        setActivity({
+          id: foundActivity.id.toString(),
+          name: foundActivity.nombre,
+          minAge: foundActivity.edad,
+          requiresSize: foundActivity.requiere_talle,
+          color: style.color,
+        });
+      }
+    }, [schedules, normalizedActivityId]);
+
+
   const participantsData: Participant[] = participants 
     ? JSON.parse(participants as string) 
     : [];
@@ -156,7 +182,9 @@ export default function Confirmation() {
             <View style={styles.detailCard}>
               <View style={styles.detailRow}>
                 <View style={[styles.activityIcon, { backgroundColor: activity.color + '20' }]}>
-                  <Text style={styles.activityEmoji}>{activity.icon}</Text>
+                    <Text style={styles.activityEmoji}>
+                    {activityStyles[activity.name]?.icon ?? '❓'}
+                    </Text>
                 </View>
                 <View style={styles.activityDetails}>
                   <Text style={styles.activityName}>{activity.name}</Text>

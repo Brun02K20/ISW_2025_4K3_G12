@@ -1,3 +1,4 @@
+import { activityStyles } from '@/data/activitiesStyles';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -10,7 +11,6 @@ import {
   View,
 } from 'react-native';
 import { useSchedules } from '../contexts/SchedulesContext';
-import { activitiesInfo } from '../data/activities';
 
 interface ActivityWithScheduleCount {
   id: string;
@@ -28,38 +28,56 @@ export default function SelectActivity() {
   const { schedules, loading, error, fetchSchedules } = useSchedules();
   const [activities, setActivities] = useState<ActivityWithScheduleCount[]>([]);
 
+  // Fetch solo si no hay datos
   useEffect(() => {
-    // Fetch schedules solo si no hay datos
     if (schedules.length === 0 && !loading) {
       fetchSchedules();
     }
   }, []);
 
+  // Procesar actividades una sola vez por cambio de schedules
   useEffect(() => {
-    // Actualizar conteo cuando cambien los schedules
-    const scheduleCounts: { [key: string]: number } = {};
+    if (schedules.length === 0) return;
 
-    schedules.forEach((schedule) => {
-      const activityName = schedule.actividad.nombre;
-      const availableSpots = schedule.cupo_total - schedule.cupo_ocupado;
-      const isAvailable = availableSpots > 0 && schedule.estado === 'activo';
+    // Agrupar por id de actividad
+    const grouped = new Map<number, { actividad: any; horarios: typeof schedules }>();
 
-      if (isAvailable) {
-        scheduleCounts[activityName] = (scheduleCounts[activityName] || 0) + 1;
+    for (const schedule of schedules) {
+      const { actividad } = schedule;
+      if (!grouped.has(actividad.id)) {
+        grouped.set(actividad.id, { actividad, horarios: [] });
       }
-    });
+      grouped.get(actividad.id)!.horarios.push(schedule);
+    }
 
-    // Combinar info hardcodeada con conteo de horarios
-    const activitiesWithCounts: ActivityWithScheduleCount[] = activitiesInfo.map(
-      (activity) => ({
-        ...activity,
-        availableSchedulesCount: scheduleCounts[activity.name] || 0,
-      })
+    // Construir la lista de actividades únicas
+    const uniqueActivities: ActivityWithScheduleCount[] = Array.from(grouped.values()).map(
+      ({ actividad, horarios }) => {
+        // Contar horarios disponibles activos
+        const availableSchedulesCount = horarios.filter(
+          (s) => s.estado === 'activo' && s.cupo_total - s.cupo_ocupado > 0
+        ).length;
+
+        // Buscar estilo (icono/color) desde el mapa
+        const style = activityStyles[actividad.nombre] || { icon: '❓', color: '#9ca3af' };
+
+        return {
+          id: actividad.id.toString(),
+          name: actividad.nombre,
+          description: actividad.descripcion,
+          requiresSize: actividad.requiere_talle,
+          minAge: actividad.edad,
+          icon: style.icon,
+          color: style.color,
+          availableSchedulesCount,
+        };
+      }
     );
 
-    setActivities(activitiesWithCounts);
+    setActivities(uniqueActivities);
   }, [schedules]);
 
+  // Mostrar loading
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -117,7 +135,9 @@ export default function SelectActivity() {
                   <Text style={styles.infoText}>• Requiere talla de vestimenta</Text>
                 )}
                 <Text style={styles.infoText}>
-                  • {activity.availableSchedulesCount} horario{activity.availableSchedulesCount !== 1 ? 's' : ''} disponible{activity.availableSchedulesCount !== 1 ? 's' : ''}
+                  • {activity.availableSchedulesCount} horario
+                  {activity.availableSchedulesCount !== 1 ? 's' : ''} disponible
+                  {activity.availableSchedulesCount !== 1 ? 's' : ''}
                 </Text>
               </View>
 
