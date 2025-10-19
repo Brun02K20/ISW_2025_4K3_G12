@@ -18,6 +18,9 @@ app.include_router(inscripcion_router)
 from src.infrastructure.routers.horario import router as horario_router
 app.include_router(horario_router)
 
+from src.infrastructure.routers.actividad_router import router as actividad_router
+app.include_router(actividad_router)
+
 @app.get("/")
 def read_root():
     return {"message": "API levantada eco parque"}
