@@ -29,6 +29,8 @@ class Actividad(Base):
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String)
     requiere_talle = Column(Boolean)
+    edad_minima = Column(Integer, nullable=True)
+    descripcion = Column(String, nullable=True)
 
 class Horario(Base):
     __tablename__ = "horario"

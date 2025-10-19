@@ -44,6 +44,8 @@ class EstadoHorario(EstadoHorarioBase):
 class ActividadBase(BaseModel):
     nombre: str
     requiere_talle: bool
+    edad_minima: Optional[int] = None
+    descripcion: Optional[str] = None
 
 class ActividadCreate(ActividadBase):
     pass

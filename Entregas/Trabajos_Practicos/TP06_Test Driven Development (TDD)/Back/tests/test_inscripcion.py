@@ -7,7 +7,8 @@ from src.domain.exceptions import (
     HorarioNoEncontradoError,
     VisitanteNoEncontradoError,
     InscripcionDuplicadaError,
-    TalleRequeridoError
+    TalleRequeridoError,
+    EdadMinimaRequeridaError
 )
 from fastapi.testclient import TestClient
 from src.application.main import app
@@ -20,10 +21,10 @@ def build_test_data(db_session):
     db_session.add_all([estado_activo, estado_inactivo])
 
     # Crear actividades
-    tirolesa = Actividad(nombre="Tirolesa", requiere_talle=True)
-    safari = Actividad(nombre="Safari", requiere_talle=False)
-    palestra = Actividad(nombre="Palestra", requiere_talle=True)
-    jardineria = Actividad(nombre="Jardineria", requiere_talle=False)
+    tirolesa = Actividad(nombre="Tirolesa", requiere_talle=True, edad_minima=12, descripcion="Deslízate por las copas de los árboles en una experiencia emocionante de aventura extrema")
+    safari = Actividad(nombre="Safari", requiere_talle=False, edad_minima=None, descripcion="Recorre el parque en vehículos especiales y observa la fauna local en su hábitat natural")
+    palestra = Actividad(nombre="Palestra", requiere_talle=True, edad_minima=8, descripcion="Zona de juegos infantiles con estructuras")
+    jardineria = Actividad(nombre="Jardineria", requiere_talle=False, edad_minima=None, descripcion="Aprende técnicas de cultivo sustentable y participa en el cuidado de nuestro vivero ecológico")
 
     db_session.add_all([tirolesa, safari, palestra, jardineria])
     db_session.commit()
@@ -47,7 +48,25 @@ def build_test_data(db_session):
         estado="activo"
     )
 
-    db_session.add_all([horario_tirolesa, horario_safari])
+    horario_palestra = Horario(
+        id_actividad=palestra.id,
+        hora_inicio="13:00",
+        hora_fin="14:00",
+        cupo_total=8,
+        cupo_ocupado=0,
+        estado="inactivo"
+    )
+
+    horario_jardineria = Horario(
+        id_actividad=jardineria.id,
+        hora_inicio="14:00",
+        hora_fin="15:00",
+        cupo_total=12,
+        cupo_ocupado=0,
+        estado="activo"
+    )
+
+    db_session.add_all([horario_tirolesa, horario_safari, horario_palestra, horario_jardineria])
     db_session.commit()
 
     # Crear visitantes
@@ -60,8 +79,12 @@ def build_test_data(db_session):
     return {
         'tirolesa': tirolesa,
         'safari': safari,
+        'palestra': palestra,
+        'jardineria': jardineria,
         'horario_tirolesa': horario_tirolesa,
         'horario_safari': horario_safari,
+        'horario_palestra': horario_palestra,
+        'horario_jardineria': horario_jardineria,
         'ana': ana,
         'luis': luis,
         'estado_activo': estado_activo,
@@ -302,7 +325,92 @@ def test_inscripcion_falla_requerimiento_talle_sin_talle(db_session):
     # Validar que el error menciona la actividad que requiere talle
     assert exc_info.value.nombre_actividad == "Tirolesa"
 
-def test_inscripcion_falla_talle_invalido(db_session):
+def test_inscripcion_falla_edad_minima_requerida(db_session):
+    """
+    Verifica que la inscripción falle si la actividad requiere una edad mínima y el visitante no la cumple.
+    """
+    # Preparar los datos de prueba
+    data = build_test_data(db_session)
+
+    # Crear un visitante menor de edad para la Tirolesa (requiere 12 años)
+    visitante_menor = Visitante(nombre="Juanito", dni=55555555, edad=10, talle="M")
+    db_session.add(visitante_menor)
+    db_session.commit()
+
+    visitantes = visitante_a_lista(db_session, visitante_menor.id)
+
+    svc = InscripcionService(db_session)
+
+    # Verificar que se lanza la excepción al intentar inscribir con edad insuficiente
+    with pytest.raises(EdadMinimaRequeridaError) as exc_info:
+        svc.inscripcion_actividad(
+            id_horario=data['horario_tirolesa'].id,  # Tirolesa requiere edad mínima 12
+            visitantes=visitantes,
+            acepta_terminos=True
+        )
+
+    # Validar que el error menciona la actividad y las edades
+    assert exc_info.value.nombre_actividad == "Tirolesa"
+    assert exc_info.value.edad_visitante == 10
+    assert exc_info.value.edad_minima == 12
+
+def test_inscripcion_exitosa_edad_cumple_minima(db_session):
+    """
+    Verifica que la inscripción funciona cuando la edad del visitante cumple con la edad mínima requerida.
+    """
+    # Preparar los datos de prueba
+    data = build_test_data(db_session)
+
+    # Crear un visitante con edad suficiente para la Tirolesa (requiere 12 años)
+    visitante_mayor = Visitante(nombre="Pedro", dni=66666666, edad=15, talle="L")
+    db_session.add(visitante_mayor)
+    db_session.commit()
+
+    visitantes = visitante_a_lista(db_session, visitante_mayor.id)
+
+    svc = InscripcionService(db_session)
+
+    # La inscripción debería funcionar porque cumple con la edad mínima
+    resultado = svc.inscripcion_actividad(
+        id_horario=data['horario_tirolesa'].id,  # Tirolesa requiere edad mínima 12
+        visitantes=visitantes,
+        acepta_terminos=True
+    )
+
+    # Verificar que la inscripción se realizó correctamente
+    assert len(resultado) == 1
+    assert resultado[0].id_horario == data['horario_tirolesa'].id
+    assert resultado[0].id_visitante == visitante_mayor.id
+
+def test_inscripcion_exitosa_sin_edad_minima(db_session):
+    """
+    Verifica que la inscripción funciona cuando la actividad no tiene edad mínima requerida.
+    """
+    # Preparar los datos de prueba
+    data = build_test_data(db_session)
+
+    # Crear un visitante menor de edad para Safari (no requiere edad mínima)
+    visitante_joven = Visitante(nombre="Carlitos", dni=77777777, edad=5, talle=None)
+    db_session.add(visitante_joven)
+    db_session.commit()
+
+    visitantes = visitante_a_lista(db_session, visitante_joven.id)
+
+    svc = InscripcionService(db_session)
+
+    # La inscripción debería funcionar porque Safari no tiene edad mínima
+    resultado = svc.inscripcion_actividad(
+        id_horario=data['horario_safari'].id,  # Safari no requiere edad mínima
+        visitantes=visitantes,
+        acepta_terminos=True
+    )
+
+    # Verificar que la inscripción se realizó correctamente
+    assert len(resultado) == 1
+    assert resultado[0].id_horario == data['horario_safari'].id
+    assert resultado[0].id_visitante == visitante_joven.id
+
+def test_inscripcion_falla_horario_inactivo(db_session):
     """Verificar que no se puede inscribir con un talle inválido"""
     data = build_test_data(db_session)
     
