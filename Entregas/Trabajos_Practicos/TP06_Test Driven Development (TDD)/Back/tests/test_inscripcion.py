@@ -94,6 +94,7 @@ def build_test_data(db_session):
         'horario_safari': horario_safari,
         'horario_palestra': horario_palestra,
         'horario_jardineria': horario_jardineria,
+        'horario_palestra_2': horario_palestra_2,
         'ana': ana,
         'luis': luis,
         'estado_activo': estado_activo,
@@ -717,3 +718,297 @@ def test_get_inscripciones_con_visitantes_endpoint(client, db_session):
     assert "nombre_actividad" in inscripcion
     assert inscripcion["visitante"]["nombre"] == data['ana'].nombre
     assert inscripcion["visitante"]["dni"] == data['ana'].dni
+
+def test_inscripcion_falla_si_nombre_visitante_vacio(db_session):
+    """Verificar que la inscripción falle si el visitante tiene un nombre vacío"""
+    data = build_test_data(db_session)
+    
+    visitante_nombre_vacio = {'nombre': '', 'dni': 12345679, 'edad': 25, 'talle': 'M'}
+
+    svc = InscripcionService(db_session)
+
+    # Verificar que se lanza la excepción al intentar inscribir con nombre vacío
+    with pytest.raises(ValueError) as exc_info:
+        svc.inscripcion_actividad(
+            id_horario=data['horario_tirolesa'].id,
+            visitantes=[visitante_nombre_vacio],
+            acepta_terminos=True
+        )
+
+    assert f"datos inválidos para : nombre" in str(exc_info.value).lower()
+
+# def test_inscripcion_falla_si_edad_no_es_numero(db_session):
+#     """Verificar que la inscripción falle si la edad del visitante no es un número"""
+#     data = build_test_data(db_session)
+    
+#     visitante_edad_no_numero = {'nombre': 'Test User', 'dni': 12345680, 'edad': 'veinticinco', 'talle': 'M'}
+
+#     svc = InscripcionService(db_session)
+
+#     # Verificar que se lanza la excepción al intentar inscribir con edad no numérica
+#     with pytest.raises(ValueError) as exc_info:
+#         svc.inscripcion_actividad(
+#             id_horario=data['horario_tirolesa'].id,
+#             visitantes=[visitante_edad_no_numero],
+#             acepta_terminos=True
+#         )
+
+#     assert "edad debe ser un número entero" in str(exc_info.value).lower()
+
+def test_inscripcion_exitosa_varios_visitantes_mezcla_existentes_y_nuevos(db_session):
+    """Verificar que se pueden inscribir varios visitantes, mezclando existentes y nuevos"""
+    data = build_test_data(db_session)
+    
+    visitantes = [
+        visitante_a_lista(db_session, data['ana'].id)[0],  # Ana existente
+        {'nombre': 'Nuevo Visitante 1', 'dni': 33333333, 'edad': 29, 'talle': 'S'},  # Nuevo visitante
+        visitante_a_lista(db_session, data['luis'].id)[0], # Luis existente
+        {'nombre': 'Nuevo Visitante 2', 'dni': 44444444, 'edad': 34, 'talle': 'L'}   # Otro nuevo visitante
+    ]
+
+    svc = InscripcionService(db_session)
+
+    # Realizar inscripción grupal
+    resultado = svc.inscripcion_actividad(
+        id_horario=data['horario_safari'].id,  # Safari no requiere talle
+        visitantes=visitantes,
+        acepta_terminos=True
+    )
+
+    # Verificar resultado - devuelve lista de objetos Inscripcion
+    assert isinstance(resultado, list)
+    assert len(resultado) == 4
+
+    # Verificar que los nuevos visitantes fueron creados
+    nuevo1 = db_session.query(Visitante).filter(Visitante.dni == 33333333).first()
+    nuevo2 = db_session.query(Visitante).filter(Visitante.dni == 44444444).first()
+    assert nuevo1 is not None
+    assert nuevo2 is not None
+
+    # Verificar que el cupo se decrementó correctamente (4 personas)
+    horario_actualizado = db_session.query(Horario).filter(Horario.id == data['horario_safari'].id).first()
+    assert horario_actualizado.cupo_ocupado == 4
+
+def test_inscripcion_falla_si_datos_visitante_nuevo_incompletos(db_session):
+    """Verificar que la inscripción falle si los datos de un visitante nuevo están incompletos"""
+    data = build_test_data(db_session)
+    
+    visitante_incompleto = {'nombre': 'Incomplete User', 'dni': None, 'edad': 25, 'talle': 'M'}
+
+    svc = InscripcionService(db_session)
+
+    # Verificar que se lanza la excepción al intentar inscribir con datos incompletos
+    with pytest.raises(ValueError) as exc_info:
+        svc.inscripcion_actividad(
+            id_horario=data['horario_tirolesa'].id,
+            visitantes=[visitante_incompleto],
+            acepta_terminos=True
+        )
+
+    assert "datos inválidos para incomplete user: dni" in str(exc_info.value).lower()
+
+def test_inscripcion_exitosa_con_cupo_exacto_restante(db_session):
+    """Verificar que se puede inscribir cuando el cupo restante es exacto al número de visitantes"""
+    data = build_test_data(db_session)
+    
+    # Ajustar el cupo del horario para que quede 3 disponibles
+    horario = db_session.query(Horario).filter(Horario.id == data['horario_safari'].id).first()
+    horario.cupo_total = 5
+    horario.cupo_ocupado = 2  # Quedan 3 disponibles
+    db_session.commit()
+
+    visitantes = [
+        {'nombre': 'Visitante 1', 'dni': 55555555, 'edad': 30, 'talle': 'M'},
+        {'nombre': 'Visitante 2', 'dni': 66666666, 'edad': 28, 'talle': 'L'},
+        {'nombre': 'Visitante 3', 'dni': 77777777, 'edad': 35, 'talle': 'XL'}
+    ]
+
+    svc = InscripcionService(db_session)
+
+    # Realizar inscripción grupal
+    resultado = svc.inscripcion_actividad(
+        id_horario=data['horario_safari'].id,
+        visitantes=visitantes,
+        acepta_terminos=True
+    )
+
+    # Verificar resultado - devuelve lista de objetos Inscripcion
+    assert isinstance(resultado, list)
+    assert len(resultado) == 3
+
+    # Verificar que el cupo se ha llenado completamente
+    horario_actualizado = db_session.query(Horario).filter(Horario.id == data['horario_safari'].id).first()
+    assert horario_actualizado.cupo_ocupado == 5  # Ahora está lleno
+
+# EJ: Si ingresa 2 veces 45454545
+# def test_inscripcion_falla_si_visitante_tiene_dni_duplicado_en_lista(db_session):
+#     """Verificar que la inscripción falle si hay DNIs duplicados en la lista de visitantes"""
+#     data = build_test_data(db_session)
+    
+#     visitante_duplicado = {'nombre': 'Duplicated User', 'dni': 12345678, 'edad': 25, 'talle': 'M'}  # DNI de Ana
+
+#     svc = InscripcionService(db_session)
+
+#     # Verificar que se lanza la excepción al intentar inscribir con DNI duplicado
+#     with pytest.raises(InscripcionDuplicadaError) as exc_info:
+#         svc.inscripcion_actividad(
+#             id_horario=data['horario_tirolesa'].id,
+#             visitantes=[visitante_duplicado, visitante_duplicado],  # Mismo visitante dos veces
+#             acepta_terminos=True
+#         )
+
+#     assert exc_info.value.id_visitante == data['ana'].id
+
+def test_inscripcion_exitosa_con_edad_minima_exacta(db_session):
+    """
+    Verifica que la inscripción funciona cuando la edad del visitante es exactamente la mínima requerida.
+    """
+    # Preparar los datos de prueba
+    data = build_test_data(db_session)
+
+    # Crear un visitante con edad exactamente igual a la mínima para la Tirolesa (requiere 12 años)
+    visitante_exacto = Visitante(nombre="Exacto", dni=88888888, edad=12, talle="M")
+    db_session.add(visitante_exacto)
+    db_session.commit()
+
+    visitantes = visitante_a_lista(db_session, visitante_exacto.id)
+
+    svc = InscripcionService(db_session)
+
+    # La inscripción debería funcionar porque cumple con la edad mínima exacta
+    resultado = svc.inscripcion_actividad(
+        id_horario=data['horario_tirolesa'].id,  # Tirolesa requiere edad mínima 12
+        visitantes=visitantes,
+        acepta_terminos=True
+    )
+
+    # Verificar que la inscripción se realizó correctamente
+    assert len(resultado) == 1
+    assert resultado[0].id_horario == data['horario_tirolesa'].id
+    assert resultado[0].id_visitante == visitante_exacto.id
+
+# def test_inscripcion_falla_si_lista_visitantes_vacia(db_session):
+#     """Verificar que la inscripción falle si la lista de visitantes está vacía"""
+#     data = build_test_data(db_session)
+
+#     svc = InscripcionService(db_session)
+
+#     # Verificar que se lanza la excepción al intentar inscribir con lista vacía
+#     with pytest.raises(ValueError) as exc_info:
+#         svc.inscripcion_actividad(
+#             id_horario=data['horario_tirolesa'].id,
+#             visitantes=[],  # Lista vacía
+#             acepta_terminos=True
+#         )
+
+#     assert "la lista de visitantes no puede estar vacía" in str(exc_info.value).lower()
+
+def test_inscripcion_falla_si_edad_menor_y_requiere_edad_minima_tirolesa(db_session):
+    """
+    Verifica que la inscripción falle si la actividad requiere una edad mínima y el visitante es menor.
+    """
+    # Preparar los datos de prueba
+    data = build_test_data(db_session)
+
+    # Crear un visitante menor de edad para la Tirolesa (requiere 12 años)
+    visitante_menor = Visitante(nombre="Pequeño", dni=99999999, edad=8, talle="S")
+    db_session.add(visitante_menor)
+    db_session.commit()
+
+    visitantes = visitante_a_lista(db_session, visitante_menor.id)
+
+    svc = InscripcionService(db_session)
+
+    # Verificar que se lanza la excepción al intentar inscribir con edad insuficiente
+    with pytest.raises(EdadMinimaRequeridaError) as exc_info:
+        svc.inscripcion_actividad(
+            id_horario=data['horario_tirolesa'].id,  # Tirolesa requiere edad mínima 12
+            visitantes=visitantes,
+            acepta_terminos=True
+        )
+
+    # Validar que el error menciona la actividad y las edades
+    assert exc_info.value.nombre_actividad == "Tirolesa"
+    assert exc_info.value.edad_visitante == 8
+    assert exc_info.value.edad_minima == 12
+
+def test_inscripcion_falla_si_edad_menor_y_requiere_edad_minima_palestra(db_session):
+    """
+    Verifica que la inscripción falle si la actividad requiere una edad mínima y el visitante es menor.
+    """
+    # Preparar los datos de prueba
+    data = build_test_data(db_session)
+
+    # Crear un visitante menor de edad para el Palestra (requiere 8 años)
+    visitante_menor = Visitante(nombre="Chiquito", dni=10101010, edad=3, talle="XS")
+    db_session.add(visitante_menor)
+    db_session.commit()
+
+    visitantes = visitante_a_lista(db_session, visitante_menor.id)
+
+    svc = InscripcionService(db_session)
+
+    # Verificar que se lanza la excepción al intentar inscribir con edad insuficiente
+    with pytest.raises(EdadMinimaRequeridaError) as exc_info:
+        svc.inscripcion_actividad(
+            id_horario=data['horario_palestra_2'].id,  # Palestra requiere edad mínima 8
+            visitantes=visitantes,
+            acepta_terminos=True
+        )
+
+    # Validar que el error menciona la actividad y las edades
+    assert exc_info.value.nombre_actividad == "Palestra"
+    assert exc_info.value.edad_visitante == 3
+    assert exc_info.value.edad_minima == 8
+
+def test_inscripcion_falla_si_edad_cumple_pero_no_hay_talle_palestra(db_session):
+    """
+    Verifica que la inscripción falle si la actividad requiere talle y el visitante no tiene talle asignado.
+    """
+    # Preparar los datos de prueba
+    data = build_test_data(db_session)
+
+    visitante_sin_talle = Visitante(nombre="SinTalle", dni=12121212, edad=10, talle=None)
+    db_session.add(visitante_sin_talle)
+    db_session.commit()
+
+    visitantes = visitante_a_lista(db_session, visitante_sin_talle.id)
+
+    svc = InscripcionService(db_session)
+
+    # Verificar que se lanza la excepción al intentar inscribir sin talle
+    with pytest.raises(TalleRequeridoError) as exc_info:
+        svc.inscripcion_actividad(
+            id_horario=data['horario_palestra_2'].id,  # Palestra requiere talle
+            visitantes=visitantes,
+            acepta_terminos=True
+        )
+
+    # Validar que el error menciona la actividad que requiere talle
+    assert exc_info.value.nombre_actividad == "Palestra"
+
+def test_inscripcion_falla_si_edad_cumple_pero_no_hay_talle_tirolesa(db_session):
+    """
+    Verifica que la inscripción falle si la actividad requiere talle y el visitante no tiene talle asignado.
+    """
+    # Preparar los datos de prueba
+    data = build_test_data(db_session)
+
+    visitante_sin_talle = Visitante(nombre="NoTalle", dni=13131313, edad=15, talle=None)
+    db_session.add(visitante_sin_talle)
+    db_session.commit()
+
+    visitantes = visitante_a_lista(db_session, visitante_sin_talle.id)
+
+    svc = InscripcionService(db_session)
+
+    # Verificar que se lanza la excepción al intentar inscribir sin talle
+    with pytest.raises(TalleRequeridoError) as exc_info:
+        svc.inscripcion_actividad(
+            id_horario=data['horario_tirolesa'].id,  # Tirolesa requiere talle
+            visitantes=visitantes,
+            acepta_terminos=True
+        )
+
+    # Validar que el error menciona la actividad que requiere talle
+    assert exc_info.value.nombre_actividad == "Tirolesa"
