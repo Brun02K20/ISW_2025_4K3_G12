@@ -49,7 +49,9 @@ def get_horarios(db: Session = Depends(get_db)):
             actividad={
                 "id": h.actividad.id,
                 "nombre": h.actividad.nombre,
-                "requiere_talle": h.actividad.requiere_talle
+                "requiere_talle": h.actividad.requiere_talle,
+                "edad": h.actividad.edad_minima,
+                "descripcion": h.actividad.descripcion
             },
             estado_horario={
                 "nombre": h.estado_horario.nombre,
