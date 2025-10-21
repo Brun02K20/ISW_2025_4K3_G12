@@ -96,3 +96,22 @@ class EdadMinimaRequeridaError(ExcepcionDominio):
         super().__init__(
             f"La actividad '{nombre_actividad}' requiere una edad mínima de {edad_minima} años, pero el visitante ID {id_visitante} tiene {edad_visitante} años."
         )
+
+class DnisDuplicadosEnListaError(ExcepcionDominio):
+    """
+    Se lanza cuando hay DNIs duplicados en la lista de visitantes a inscribir.
+    """
+    def __init__(self, dni_duplicado: int):
+        self.dni_duplicado = dni_duplicado
+        super().__init__(
+            f"No se puede inscribir: el DNI {dni_duplicado} aparece más de una vez en la lista de visitantes."
+        )
+
+class ListaVisitantesVaciaError(ExcepcionDominio):
+    """
+    Se lanza cuando se intenta inscribir con una lista de visitantes vacía.
+    """
+    def __init__(self):
+        super().__init__(
+            "No se puede inscribir: la lista de visitantes no puede estar vacía."
+        )

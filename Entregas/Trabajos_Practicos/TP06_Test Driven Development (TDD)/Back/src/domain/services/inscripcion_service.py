@@ -9,7 +9,9 @@ from src.domain.exceptions import (
     InscripcionDuplicadaError,
     TalleRequeridoError,
     DatosVisitantesInvalidosError,
-    EdadMinimaRequeridaError
+    EdadMinimaRequeridaError,
+    DnisDuplicadosEnListaError,
+    ListaVisitantesVaciaError
 )
 from typing import List, Optional
 from pydantic import BaseModel, ConfigDict
@@ -48,6 +50,20 @@ class InscripcionService:
         # Verificar que se acepten términos y condiciones
         if not acepta_terminos:
             raise TerminosNoAceptadosError()
+
+        # Verificar que la lista de visitantes no esté vacía
+        if not visitantes:
+            raise ListaVisitantesVaciaError()
+
+        # Verificar que no haya DNIs duplicados en la lista
+        dnis = [persona['dni'] for persona in visitantes]
+        dnis_unicos = set(dnis)
+        if len(dnis) != len(dnis_unicos):
+            # Encontrar el DNI duplicado
+            for dni in dnis:
+                if dnis.count(dni) > 1:
+                    raise DnisDuplicadosEnListaError(dni)
+                    break
 
         cantidad_personas = len(visitantes)
         
