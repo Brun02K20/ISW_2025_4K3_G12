@@ -47,30 +47,9 @@ export const createInscripcion = async (
     } else {
       // Manejar errores específicos según el código de estado
       const errorData = await response.json().catch(() => ({ detail: "Error desconocido" }));
-      const errorDetail = errorData.detail || errorData.message || "Error al registrar la inscripción";
 
-      let userMessage = "";
-
-      switch (response.status) {
-        case 400:
-          // Errores de validación (CupoInsuficienteError, TerminosNoAceptadosError, TalleRequeridoError)
-          userMessage = errorDetail;
-          break;
-        case 404:
-          // Horario o visitante no encontrado
-          userMessage = errorDetail;
-          break;
-        case 409:
-          // Inscripción duplicada
-          userMessage = "Ya existe una inscripción para este horario con uno o más de los participantes. Por favor, verifica los datos o selecciona otro horario.";
-          break;
-        case 500:
-          userMessage = "Error interno del servidor. Por favor, intenta más tarde.";
-          break;
-        default:
-          userMessage = errorDetail;
-      }
-
+      const userMessage = errorData.detail && errorData.detail[0] ? errorData.detail[0].msg : "Error desconocido";
+      
       return {
         success: false,
         message: userMessage,

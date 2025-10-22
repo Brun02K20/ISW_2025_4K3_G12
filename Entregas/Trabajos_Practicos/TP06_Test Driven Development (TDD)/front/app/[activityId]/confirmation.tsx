@@ -149,7 +149,6 @@ export default function Confirmation() {
 
     } catch (error) {
       console.error("Error al confirmar reserva:", error);
-      setErrorMessage("Ocurrió un error inesperado. Por favor, intenta nuevamente.");
       setShowErrorModal(true);
     } finally {
       setSending(false);
