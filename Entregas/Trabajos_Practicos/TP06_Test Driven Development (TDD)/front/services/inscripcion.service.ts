@@ -19,12 +19,22 @@ export interface InscripcionResponse {
   data?: any;
 }
 
+export interface InscripcionErrorResponse {
+  detail: Array<{
+    type: string;
+    loc: unknown[]; // puede haber cualquier cosa aca adentro
+    msg: string;
+    input: any;
+    url: string;
+  }>;
+}
+
 /**
  * Envía la inscripción a la API del backend.
  */
 export const createInscripcion = async (
   data: InscripcionApiData
-): Promise<InscripcionResponse> => {
+): Promise<InscripcionResponse | InscripcionErrorResponse> => {
   try {
     // URL de la API en localhost
     const API_URL = `${API_BASE_URL}/inscripciones`;
@@ -45,30 +55,28 @@ export const createInscripcion = async (
         data: responseData,
       };
     } else {
-      // Manejar errores específicos según el código de estado
-      const errorData = await response.json().catch(() => ({ detail: "Error desconocido" }));
-      const errorDetail = errorData.detail || errorData.message || "Error al registrar la inscripción";
-
+      const errorData: InscripcionErrorResponse = await response.json();
+      console.error("❌ Error en la inscripción:", errorData);
       let userMessage = "";
 
       switch (response.status) {
         case 400:
           // Errores de validación (CupoInsuficienteError, TerminosNoAceptadosError, TalleRequeridoError)
-          userMessage = errorDetail;
+          userMessage = "Oops! Parece que hubo un problema con los datos enviados. Por favor, revisa la información e intenta nuevamente.";
           break;
         case 404:
           // Horario o visitante no encontrado
-          userMessage = errorDetail;
+          userMessage = "Oops! Parece que hubo un problema con los datos enviados. Por favor, revisa la información e intenta nuevamente.";
           break;
         case 409:
           // Inscripción duplicada
-          userMessage = "Ya existe una inscripción para este horario con uno o más de los participantes. Por favor, verifica los datos o selecciona otro horario.";
+          userMessage = "Oops! Parece que hubo un problema con los datos enviados. Por favor, revisa la información e intenta nuevamente.";
           break;
         case 500:
-          userMessage = "Error interno del servidor. Por favor, intenta más tarde.";
+          userMessage = "Error interno del servidor. Por favor, intenta nuevamente más tarde.";
           break;
         default:
-          userMessage = errorDetail;
+          userMessage = "Oops! Parece que hubo un problema con los datos enviados. Por favor, revisa la información e intenta nuevamente.";
       }
 
       return {
