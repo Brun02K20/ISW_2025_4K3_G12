@@ -64,11 +64,13 @@ def crear_visitante_validado(nombre: str = None, dni: int = None, edad: int = No
 
     if not nombre:
         campos_faltantes.append('nombre')
+    elif not nombre.replace(' ', '').isalpha():
+        campos_faltantes.append('nombre')
     if not dni:
         campos_faltantes.append('dni')
     if edad is None:
         campos_faltantes.append('edad')
-    elif not isinstance(edad, int) or edad <= 0 or edad > 120:
+    elif not isinstance(edad, int) or edad < 0 or edad > 120:
         campos_faltantes.append('edad')
     if talle is not None and talle not in TALLAS_VALIDAS:
         campos_faltantes.append('talle')
