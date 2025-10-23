@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 import os
 
 # Database configuration with proper encoding
-DATABASE_URL = "postgresql://postgres:admin@localhost:5432/parque_db"
+DATABASE_URL = "postgresql://emmach:emma@localhost:5432/parque_db"
 
 engine = create_engine(
     DATABASE_URL,

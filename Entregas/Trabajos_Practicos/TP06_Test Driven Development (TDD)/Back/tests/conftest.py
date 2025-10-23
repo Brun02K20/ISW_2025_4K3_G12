@@ -10,7 +10,7 @@ from fastapi.testclient import TestClient
 from src.domain.database import Base, get_db
 from src.application.main import app
 
-TEST_DATABASE_URL = "postgresql://postgres:admin@localhost:5432/parque_db"
+TEST_DATABASE_URL = "postgresql://emmach:emma@localhost:5432/parque_db"
 
 engine = create_engine(TEST_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

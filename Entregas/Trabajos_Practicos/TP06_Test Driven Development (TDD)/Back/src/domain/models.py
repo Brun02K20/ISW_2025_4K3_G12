@@ -64,7 +64,7 @@ def crear_visitante_validado(nombre: str = None, dni: int = None, edad: int = No
 
     if not nombre:
         campos_faltantes.append('nombre')
-    elif not nombre.replace(' ', '').isalpha():
+    elif not nombre.replace(' ', '').isalnum():
         campos_faltantes.append('nombre')
     if not dni:
         campos_faltantes.append('dni')

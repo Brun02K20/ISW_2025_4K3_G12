@@ -12,7 +12,7 @@ def setup_test_database():
     """Crear la base de datos de test si no existe"""
     try:
         # Conectar a la base de datos postgres (base de datos por defecto)
-        engine = create_engine("postgresql://postgres:admin@localhost:5432/postgres")
+        engine = create_engine("postgresql://emmach:emma@localhost:5432/postgres")
 
         with engine.connect() as conn:
             # Terminar otras conexiones a la base de datos de test
