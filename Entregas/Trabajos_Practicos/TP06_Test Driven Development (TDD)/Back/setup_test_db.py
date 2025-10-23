@@ -7,12 +7,13 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 from sqlalchemy import create_engine, text
+from config_db import USUARIO_DB, CONTRASENA_DB, PUERTO_DB, URL_DB, DATABASE_NAME
 
 def setup_test_database():
     """Crear la base de datos de test si no existe"""
     try:
         # Conectar a la base de datos postgres (base de datos por defecto)
-        engine = create_engine("postgresql://emmach:emma@localhost:5432/postgres")
+        engine = create_engine(f"postgresql://{USUARIO_DB}:{CONTRASENA_DB}@{URL_DB}:{PUERTO_DB}/{DATABASE_NAME}")
 
         with engine.connect() as conn:
             # Terminar otras conexiones a la base de datos de test

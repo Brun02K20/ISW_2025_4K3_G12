@@ -9,8 +9,9 @@ from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
 from src.domain.database import Base, get_db
 from src.application.main import app
+from config_db import USUARIO_DB, CONTRASENA_DB, PUERTO_DB, URL_DB, DATABASE_NAME
 
-TEST_DATABASE_URL = "postgresql://emmach:emma@localhost:5432/parque_db"
+TEST_DATABASE_URL = f"postgresql://{USUARIO_DB}:{CONTRASENA_DB}@{URL_DB}:{PUERTO_DB}/{DATABASE_NAME}"
 
 engine = create_engine(TEST_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
