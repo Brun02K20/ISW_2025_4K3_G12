@@ -3,8 +3,10 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
 
+from config_db import USUARIO_DB, CONTRASENA_DB, PUERTO_DB, URL_DB, DATABASE_NAME
+
 # Database configuration with proper encoding
-DATABASE_URL = "postgresql://postgres:admin@localhost:5432/parque_db"
+DATABASE_URL = f"postgresql://{USUARIO_DB}:{CONTRASENA_DB}@{URL_DB}:{PUERTO_DB}/{DATABASE_NAME}"
 
 engine = create_engine(
     DATABASE_URL,

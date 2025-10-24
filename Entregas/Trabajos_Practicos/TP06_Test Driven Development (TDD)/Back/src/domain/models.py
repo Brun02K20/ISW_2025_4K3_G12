@@ -1,5 +1,5 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey 
+from sqlalchemy.orm import relationship, validates, declarative_base
 from .database import Base
 
 class User(Base):
@@ -52,8 +52,14 @@ class Visitante(Base):
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String)
     dni = Column(Integer)
-    edad = Column(Integer)
-    talle = Column(String)  # Cambiado de Integer a String
+    edad = Column(Integer, nullable=True)  # permite null en la base
+    talle = Column(String)
+
+    @validates("edad")
+    def validar_edad(self, key, value):
+        if value is not None and not isinstance(value, int):
+            raise ValueError("La edad debe ser un número entero o nula.")
+        return value
     
 from .exceptions import DatosVisitantesInvalidosError
 
@@ -64,11 +70,13 @@ def crear_visitante_validado(nombre: str = None, dni: int = None, edad: int = No
 
     if not nombre:
         campos_faltantes.append('nombre')
+    elif not nombre.replace(' ', '').isalnum():
+        campos_faltantes.append('nombre')
     if not dni:
         campos_faltantes.append('dni')
     if edad is None:
         campos_faltantes.append('edad')
-    elif not isinstance(edad, int) or edad <= 0 or edad > 120:
+    elif not isinstance(edad, int) or edad < 0 or edad > 120:
         campos_faltantes.append('edad')
     if talle is not None and talle not in TALLAS_VALIDAS:
         campos_faltantes.append('talle')

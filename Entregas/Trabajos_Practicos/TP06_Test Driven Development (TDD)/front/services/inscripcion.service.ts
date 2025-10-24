@@ -55,6 +55,7 @@ export const createInscripcion = async (
         data: responseData,
       };
     } else {
+      
       const errorData: InscripcionErrorResponse = await response.json();
       console.error("❌ Error en la inscripción:", errorData);
       let userMessage = "";
@@ -79,6 +80,8 @@ export const createInscripcion = async (
           userMessage = "Oops! Parece que hubo un problema con los datos enviados. Por favor, revisa la información e intenta nuevamente.";
       }
 
+      const userMessage = errorData.detail && errorData.detail[0] ? errorData.detail[0].msg : "Error desconocido";
+      
       return {
         success: false,
         message: userMessage,

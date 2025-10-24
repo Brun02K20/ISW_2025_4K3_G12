@@ -716,6 +716,24 @@ def test_inscripcion_falla_si_edad_no_es_numero(db_session):
 
     assert "datos inválidos" in str(exc_info.value).lower() and "edad" in str(exc_info.value).lower()
 
+def test_inscripcion_falla_si_nombre_contiene_caracteres_invalidos(db_session):
+    """Verificar que la inscripción falle si el nombre contiene caracteres que no son letras o espacios"""
+    data = build_test_data(db_session)
+
+    visitante_nombre_invalido = {'nombre': 'Test123 User!', 'dni': 12345681, 'edad': 25, 'talle': 'M'}
+
+    svc = InscripcionService(db_session)
+
+    # Verificar que se lanza la excepción al intentar inscribir con nombre inválido
+    with pytest.raises(ValueError) as exc_info:
+        svc.inscripcion_actividad(
+            id_horario=data['horario_tirolesa'].id,
+            visitantes=[visitante_nombre_invalido],
+            acepta_terminos=True
+        )
+
+    assert "datos inválidos" in str(exc_info.value).lower() and "nombre" in str(exc_info.value).lower()
+
 def test_inscripcion_falla_si_datos_visitante_nuevo_incompletos(db_session):
     """Verificar que la inscripción falle si los datos de un visitante nuevo están incompletos"""
     data = build_test_data(db_session)
@@ -733,6 +751,25 @@ def test_inscripcion_falla_si_datos_visitante_nuevo_incompletos(db_session):
         )
 
     assert "datos inválidos para incomplete user: dni" in str(exc_info.value).lower()
+
+def test_inscripcion_exitosa_con_edad_cero(db_session):
+    """Verificar que se puede inscribir con edad 0 (recién nacido)"""
+    data = build_test_data(db_session)
+    
+    visitante_bebe = {'nombre': 'Bebe Martinez', 'dni': 99999990, 'edad': 0, 'talle': 'XS'}
+
+    svc = InscripcionService(db_session)
+
+    # La inscripción debería funcionar con edad 0
+    resultado = svc.inscripcion_actividad(
+        id_horario=data['horario_safari'].id,  # Safari no requiere edad mínima
+        visitantes=[visitante_bebe],
+        acepta_terminos=True
+    )
+
+    # Verificar que la inscripción se realizó correctamente
+    assert len(resultado) == 1
+    assert resultado[0].id_horario == data['horario_safari'].id
 
 def test_inscripcion_exitosa_con_cupo_exacto_restante(db_session):
     """Verificar que se puede inscribir cuando el cupo restante es exacto al número de visitantes"""
