@@ -55,30 +55,11 @@ export const createInscripcion = async (
         data: responseData,
       };
     } else {
-      const errorData: InscripcionErrorResponse = await response.json();
-      console.error("❌ Error en la inscripción:", errorData);
-      let userMessage = "";
+      // Manejar errores específicos según el código de estado
+      const errorData = await response.json().catch(() => ({ detail: "Error desconocido" }));
 
-      switch (response.status) {
-        case 400:
-          // Errores de validación (CupoInsuficienteError, TerminosNoAceptadosError, TalleRequeridoError)
-          userMessage = "Oops! Parece que hubo un problema con los datos enviados. Por favor, revisa la información e intenta nuevamente.";
-          break;
-        case 404:
-          // Horario o visitante no encontrado
-          userMessage = "Oops! Parece que hubo un problema con los datos enviados. Por favor, revisa la información e intenta nuevamente.";
-          break;
-        case 409:
-          // Inscripción duplicada
-          userMessage = "Oops! Parece que hubo un problema con los datos enviados. Por favor, revisa la información e intenta nuevamente.";
-          break;
-        case 500:
-          userMessage = "Error interno del servidor. Por favor, intenta nuevamente más tarde.";
-          break;
-        default:
-          userMessage = "Oops! Parece que hubo un problema con los datos enviados. Por favor, revisa la información e intenta nuevamente.";
-      }
-
+      const userMessage = errorData.detail && errorData.detail[0] ? errorData.detail[0].msg : "Error desconocido";
+      
       return {
         success: false,
         message: userMessage,
