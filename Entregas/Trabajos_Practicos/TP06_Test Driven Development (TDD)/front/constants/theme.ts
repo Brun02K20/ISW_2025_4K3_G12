@@ -5,13 +5,14 @@
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+// Color anterior #0a7ea4
+const tintColorLight = '#3DA35D'; //Emerald #3DA35D el anterior era #2f95dc
+const tintColorDark = '#E8FCCF'; //Nyanza #E8FCCF el anterior era #FFF
 
 export const Colors = {
   light: {
     text: '#11181C',
-    background: '#fff',
+    background: '#E8FCCF',
     tint: tintColorLight,
     icon: '#687076',
     tabIconDefault: '#687076',
