@@ -16,7 +16,7 @@ import {
   View,
 } from 'react-native';
 import { useSchedules } from '../../contexts/SchedulesContext';
-import { convertApiScheduleToSchedule, Participant, Schedule } from '../../types';
+import { ApiSchedule, Participant } from '../../types';
 
 export default function Confirmation() {
   const router = useRouter();
@@ -28,7 +28,7 @@ export default function Confirmation() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null);
+  const [selectedSchedule, setSelectedSchedule] = useState<ApiSchedule | null>(null);
   const [activity, setActivity] = useState<any | null>(null);
 
   // Normalize params
@@ -69,9 +69,8 @@ export default function Confirmation() {
   useEffect(() => {
     if (activity) {
       const apiSchedules = getSchedulesByActivity(activity.name);
-      const schedules = apiSchedules.map(convertApiScheduleToSchedule);
-      const schedule = schedules.find(s => s.id === normalizedScheduleId);
-      
+      const schedule = apiSchedules.find(s => s.id === parseInt(normalizedScheduleId));
+
       if (schedule) {
         setSelectedSchedule(schedule);
       }
@@ -115,6 +114,8 @@ export default function Confirmation() {
     // Datos para el email (con activity_name)
     const emailData = {
       id_horario: Number(normalizedScheduleId) || 0,
+      hora_inicio: selectedSchedule.hora_inicio,
+      hora_fin: selectedSchedule.hora_fin,
       nombre_actividad: activity.name,
       visitantes: visitantesData,
       acepta_terminos: aceptaTerminos,
@@ -195,7 +196,7 @@ export default function Confirmation() {
               
               <View style={styles.infoRow}>
                 <Ionicons name="time-outline" size={20} color="#6b7280" />
-                <Text style={styles.infoText}>Horario: {selectedSchedule.time}</Text>
+                <Text style={styles.infoText}>Horario: {selectedSchedule.hora_inicio}</Text>
               </View>
               
               <View style={styles.infoRow}>

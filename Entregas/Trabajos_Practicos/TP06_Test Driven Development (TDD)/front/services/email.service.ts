@@ -7,17 +7,19 @@ export interface Visitante {
   talle: string;
 }
 
-export interface InscripcionData {
+export interface InscripcionEmailData {
   id_horario: number;
-    nombre_actividad: string;
+  nombre_actividad: string;
   visitantes: Visitante[];
   acepta_terminos: boolean;
+  hora_inicio: string;
+  hora_fin: string;
 }
 
 /**
  * Envía la inscripción por correo usando EmailJS.
  */
-export const sendInscriptionEmail = async (data: InscripcionData) => {
+export const sendInscriptionEmail = async (data: InscripcionEmailData) => {
   if (!data) throw new Error("No hay datos para enviar el correo.");
 
   const visitantes = data.visitantes.map((v, i) => ({
@@ -31,6 +33,8 @@ export const sendInscriptionEmail = async (data: InscripcionData) => {
   const templateParams = {
     id_horario: data.id_horario,
     activity_name: data.nombre_actividad,
+    hora_inicio: data.hora_inicio,
+    hora_fin: data.hora_fin,
     acepta_terminos: data.acepta_terminos ? "Sí" : "No",
     visitantes,
     email: "bvirinni@gmail.com",
