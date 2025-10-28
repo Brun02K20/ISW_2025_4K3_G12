@@ -19,12 +19,22 @@ export interface InscripcionResponse {
   data?: any;
 }
 
+export interface InscripcionErrorResponse {
+  detail: Array<{
+    type: string;
+    loc: unknown[]; // puede haber cualquier cosa aca adentro
+    msg: string;
+    input: any;
+    url: string;
+  }>;
+}
+
 /**
  * Envía la inscripción a la API del backend.
  */
 export const createInscripcion = async (
   data: InscripcionApiData
-): Promise<InscripcionResponse> => {
+): Promise<InscripcionResponse | InscripcionErrorResponse> => {
   try {
     // URL de la API en localhost
     const API_URL = `${API_BASE_URL}/inscripciones`;
