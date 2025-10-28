@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  postgres_db:
+    image: postgres:alpine3.21
+    container_name: server_postgres_ISW
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: parque_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - app_ISW
+    restart: unless-stopped
+
+  backend_app:
+    container_name: backend_ISW
+    build: .
+    environment:
+      DB_HOST: postgres_db
+      DB_PORT: 5432
+      DB_NAME: parque_db
+      DB_USER: postgres
+      DB_PASSWORD: admin
+      PYTHONPATH: /app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres_db
+    networks:
+      - app_ISW
+    restart: unless-stopped
+    
+  nginx_proxy:
+    image: nginx:1.25-alpine
+    container_name: nginx_proxy_ISW
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - app_ISW
+    restart: unless-stopped  
+    depends_on:
+      - backend_app
+
+networks:
+  app_ISW:
+    driver: bridge  
+    
+volumes:
+  postgres_data:
+    driver: local
