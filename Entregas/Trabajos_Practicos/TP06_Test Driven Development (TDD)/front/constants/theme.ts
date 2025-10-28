@@ -5,7 +5,6 @@
 
 import { Platform } from 'react-native';
 
-// Color anterior #0a7ea4
 const tintColorLight = '#3DA35D'; //Emerald #3DA35D el anterior era #2f95dc
 const tintColorDark = '#E8FCCF'; //Nyanza #E8FCCF el anterior era #FFF
 
